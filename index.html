@@ -206,7 +206,7 @@
   .no-results  { padding: 14px 16px; color: var(--muted); font-size: 13px; }
 
   /* Fiche */
-  .fiche { display: none; }
+  .fiche { display: none; margin-top: 8px; }
   .fiche.visible { display: block; animation: fadeUp 0.2s ease; }
 
   @keyframes fadeUp {
@@ -356,15 +356,9 @@
     <span class="logo">VendorDB</span>
     <h1>Leveranciersfiche</h1>
   </div>
-  <div style="display:flex; align-items:center; gap:12px;">
-    <div class="sync-status">
-      <div class="sync-dot loading" id="syncDot"></div>
-      <span id="syncLabel">laden…</span>
-    </div>
-    <button class="refresh-btn" onclick="laadData()" title="Data herladen">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      ververs
-    </button>
+  <div class="sync-status">
+    <div class="sync-dot loading" id="syncDot"></div>
+    <span id="syncLabel">laden…</span>
   </div>
 </header>
 
@@ -400,10 +394,6 @@
 
   <!-- Fiche -->
   <div class="fiche" id="fiche">
-    <button class="back-link" onclick="naarZoek()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      Terug naar zoeken
-    </button>
     <div id="ficheWrap"></div>
   </div>
 
@@ -525,8 +515,8 @@
     const v = vendors.find(x => x[idKey] === id);
     if (!v) return;
     lijstEl.classList.remove('open');
+    zoekEl.value = '';
     toonFiche(v);
-    document.getElementById('searchSection').classList.remove('visible');
     document.getElementById('fiche').classList.add('visible');
   }
 
@@ -607,13 +597,6 @@
   }
 
   /* ── NAV ── */
-  function naarZoek() {
-    document.getElementById('fiche').classList.remove('visible');
-    document.getElementById('searchSection').classList.add('visible');
-    zoekEl.value = '';
-    lijstEl.classList.remove('open');
-    zoekEl.focus();
-  }
 
   /* ── START ── */
   laadData();
