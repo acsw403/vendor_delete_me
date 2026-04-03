@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VendorDB Fiche</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F3EE;
+    --surface: #FFFFFF;
+    --border: #E0DDD6;
+    --accent: #1A1A2E;
+    --accent2: #4A4E8C;
+    --muted: #8A8880;
+    --text: #1C1C1C;
+    --tag-bg: #EEEDF8;
+    --tag-text: #3C3489;
+    --active-bg: #EAF5EE;
+    --active-text: #2A6B3C;
+    --inactive-bg: #F5EEEE;
+    --inactive-text: #8B3A3A;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--accent);
+    color: white;
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  header .left { display: flex; align-items: center; gap: 16px; }
+
+  header .logo {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    padding-right: 16px;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+
+  header h1 { font-size: 15px; font-weight: 500; }
+
+  .sync-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+  }
+
+  .sync-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #aaa;
+    flex-shrink: 0;
+  }
+
+  .sync-dot.loading { background: #f0c040; animation: pulse 1s infinite; }
+  .sync-dot.ok      { background: #5cb87a; }
+  .sync-dot.err     { background: #e05555; }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Loading state */
+  .loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 32px;
+    gap: 16px;
+    color: var(--muted);
+  }
+
+  .spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent2);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loader p { font-size: 13px; }
+
+  /* Error state */
+  .err-state {
+    background: var(--surface);
+    border: 1.5px solid var(--inactive-bg);
+    border-radius: 10px;
+    padding: 32px;
+    text-align: center;
+    display: none;
+  }
+
+  .err-state h2 { font-size: 15px; font-weight: 500; margin-bottom: 8px; color: var(--inactive-text); }
+  .err-state p  { font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .err-state code { font-family: var(--mono); background: var(--tag-bg); color: var(--tag-text); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+
+  /* Search */
+  .search-section { display: none; margin-bottom: 28px; }
+  .search-section.visible { display: block; animation: fadeUp 0.2s ease; }
+
+  .search-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .search-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .vendor-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .search-wrap { position: relative; }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  #zoek {
+    width: 100%;
+    padding: 13px 13px 13px 44px;
+    font-family: var(--sans);
+    font-size: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  #zoek:focus { border-color: var(--accent2); }
+  #zoek::placeholder { color: var(--muted); }
+
+  .results-list {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    margin-top: 6px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .results-list.open { display: block; }
+
+  .result-item {
+    padding: 11px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  .result-item:last-child { border-bottom: none; }
+  .result-item:hover, .result-item.sel { background: var(--tag-bg); }
+  .result-name { font-weight: 500; font-size: 14px; }
+  .result-meta { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+  .no-results  { padding: 14px 16px; color: var(--muted); font-size: 13px; }
+
+  /* Fiche */
+  .fiche { display: none; }
+  .fiche.visible { display: block; animation: fadeUp 0.2s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .fiche-header {
+    background: var(--accent);
+    border-radius: 10px 10px 0 0;
+    padding: 24px 28px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .vendor-id   { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 5px; }
+  .vendor-name { font-size: 22px; font-weight: 600; color: white; letter-spacing: -0.01em; }
+  .vendor-cat  { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+
+  .status-badge {
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--mono);
+    white-space: nowrap;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .s-actief   { background: var(--active-bg);  color: var(--active-text); }
+  .s-inactief { background: var(--inactive-bg); color: var(--inactive-text); }
+  .s-default  { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+
+  .fiche-body {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 160px 1fr auto;
+    align-items: center;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    transition: background 0.1s;
+  }
+
+  .field-row:last-child { border-bottom: none; }
+  .field-row:hover { background: #FAFAF8; }
+
+  .field-key { font-size: 12px; color: var(--muted); font-weight: 400; }
+
+  .field-val { font-size: 13px; color: var(--text); font-weight: 500; word-break: break-all; }
+  .field-val.mono { font-family: var(--mono); font-size: 12px; font-weight: 400; letter-spacing: 0.03em; }
+  .field-val a { color: var(--accent2); text-decoration: none; }
+  .field-val a:hover { text-decoration: underline; }
+
+  .field-section {
+    padding: 7px 20px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  .field-section span {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover { border-color: var(--accent2); color: var(--accent2); background: var(--tag-bg); }
+  .copy-btn.copied { border-color: var(--active-text); color: var(--active-text); background: var(--active-bg); }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    margin-bottom: 20px;
+    background: none;
+    border: none;
+    font-family: var(--sans);
+    padding: 0;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover { color: var(--accent2); }
+
+  .refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+
+  .refresh-btn:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.8); }
+
+  @media (max-width: 560px) {
+    header { padding: 14px 16px; }
+    .main { padding: 24px 16px 60px; }
+    .field-row { grid-template-columns: 110px 1fr auto; }
+    .fiche-header { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="left">
+    <span class="logo">VendorDB</span>
+    <h1>Leveranciersfiche</h1>
+  </div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <div class="sync-status">
+      <div class="sync-dot loading" id="syncDot"></div>
+      <span id="syncLabel">laden…</span>
+    </div>
+    <button class="refresh-btn" onclick="laadData()" title="Data herladen">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      ververs
+    </button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+    <p>Vendordata ophalen…</p>
+  </div>
+
+  <!-- Error -->
+  <div class="err-state" id="errState">
+    <h2>Kon data niet ophalen</h2>
+    <p>Controleer of de Google Sheet gepubliceerd is op internet<br>
+    (Bestand → Delen → Publiceren op internet → CSV)</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-section" id="searchSection">
+    <div class="search-top">
+      <span class="search-label">Zoek vendor op naam</span>
+      <span class="vendor-count" id="vendorCount"></span>
+    </div>
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="zoek" placeholder="Typ bedrijfsnaam…" autocomplete="off" />
+    </div>
+    <div class="results-list" id="resultsList"></div>
+  </div>
+
+  <!-- Fiche -->
+  <div class="fiche" id="fiche">
+    <button class="back-link" onclick="naarZoek()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Terug naar zoeken
+    </button>
+    <div id="ficheWrap"></div>
+  </div>
+
+</div>
+
+<script>
+  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSbHvwyWOo3kfopzytCrTfO_wtbvwFI2JdONozjcOr-_WfBZ_ukfYj1zT4Witl1TDZp1QKXLw7uO73J/pub?gid=1321484282&single=true&output=csv';
+
+  let vendors = [];
+  let headers = [];
+  let selectedIndex = -1;
+
+  /* ── LADEN ── */
+  async function laadData() {
+    setSync('loading', 'laden…');
+    document.getElementById('loader').style.display = 'flex';
+    document.getElementById('errState').style.display = 'none';
+    document.getElementById('searchSection').classList.remove('visible');
+    document.getElementById('fiche').classList.remove('visible');
+
+    try {
+      const res = await fetch(SHEET_URL);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const text = await res.text();
+      parseCSV(text);
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('searchSection').classList.add('visible');
+      document.getElementById('vendorCount').textContent = vendors.length + ' vendors';
+      setSync('ok', 'gesynchroniseerd');
+      document.getElementById('zoek').focus();
+    } catch (e) {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('errState').style.display = 'block';
+      setSync('err', 'fout bij laden');
+    }
+  }
+
+  function setSync(state, label) {
+    const dot = document.getElementById('syncDot');
+    dot.className = 'sync-dot ' + state;
+    document.getElementById('syncLabel').textContent = label;
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split('\n').filter(l => l.trim());
+    const sep = lines[0].includes(';') ? ';' : ',';
+    headers = lines[0].split(sep).map(h => h.trim().replace(/\r/g, ''));
+    vendors = lines.slice(1).map(line => {
+      const vals = line.split(sep).map(v => v.trim().replace(/\r/g, ''));
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = vals[i] !== undefined ? vals[i] : '');
+      return obj;
+    }).filter(v => Object.values(v).some(x => x));
+  }
+
+  /* ── ZOEKEN ── */
+  const zoekEl  = document.getElementById('zoek');
+  const lijstEl = document.getElementById('resultsList');
+
+  zoekEl.addEventListener('input', () => {
+    const q = zoekEl.value.trim().toLowerCase();
+    selectedIndex = -1;
+    const nameKey = headers.find(h => /^name$/i.test(h) || /naam/i.test(h)) || headers[1] || headers[0];
+
+    if (!q) { lijstEl.classList.remove('open'); return; }
+
+    const hits = vendors.filter(v => (v[nameKey] || '').toLowerCase().includes(q));
+
+    if (!hits.length) {
+      lijstEl.innerHTML = '<div class="no-results">Geen vendors gevonden</div>';
+      lijstEl.classList.add('open');
+      return;
+    }
+
+    const catKey  = headers.find(h => /categorie|category/i.test(h)) || '';
+    const landKey = headers.find(h => /^land$|^country$/i.test(h)) || '';
+    const idKey   = headers[0];
+
+    lijstEl.innerHTML = hits.slice(0, 12).map(v => `
+      <div class="result-item" data-id="${esc(v[idKey])}">
+        <span class="result-name">${hl(v[nameKey] || '', q)}</span>
+        <span class="result-meta">${v[catKey] || ''} ${v[landKey] ? '· ' + v[landKey] : ''}</span>
+      </div>
+    `).join('');
+
+    lijstEl.querySelectorAll('.result-item').forEach(el => {
+      el.addEventListener('click', () => kiesVendor(el.dataset.id));
+    });
+
+    lijstEl.classList.add('open');
+  });
+
+  zoekEl.addEventListener('keydown', e => {
+    const items = lijstEl.querySelectorAll('.result-item');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown')  { e.preventDefault(); selectedIndex = Math.min(selectedIndex + 1, items.length - 1); updSel(items); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = Math.max(selectedIndex - 1, 0); updSel(items); }
+    else if (e.key === 'Enter' && selectedIndex >= 0) items[selectedIndex].click();
+    else if (e.key === 'Escape') lijstEl.classList.remove('open');
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#zoek') && !e.target.closest('#resultsList')) lijstEl.classList.remove('open');
+  });
+
+  function updSel(items) { items.forEach((el, i) => el.classList.toggle('sel', i === selectedIndex)); }
+
+  function hl(text, q) {
+    const idx = text.toLowerCase().indexOf(q);
+    if (idx === -1) return text;
+    return text.slice(0, idx) + '<strong>' + text.slice(idx, idx + q.length) + '</strong>' + text.slice(idx + q.length);
+  }
+
+  function esc(s) { return (s || '').replace(/"/g, '&quot;'); }
+
+  /* ── FICHE ── */
+  function kiesVendor(id) {
+    const idKey = headers[0];
+    const v = vendors.find(x => x[idKey] === id);
+    if (!v) return;
+    lijstEl.classList.remove('open');
+    toonFiche(v);
+    document.getElementById('searchSection').classList.remove('visible');
+    document.getElementById('fiche').classList.add('visible');
+  }
+
+  function toonFiche(v) {
+    const nameKey   = headers.find(h => /^name$/i.test(h) || /naam/i.test(h)) || headers[1];
+    const idKey     = headers[0];
+    const statusKey = headers.find(h => /^status$/i.test(h)) || '';
+    const catKey    = headers.find(h => /categorie|category/i.test(h)) || '';
+
+    const contactKeys = headers.filter(h => /mail|email|tel|phone|contact/i.test(h));
+    const financKeys  = headers.filter(h => /iban|betaal|payment|term/i.test(h));
+    const sysKeys     = headers.filter(h => h === idKey || /^status$|categorie|category|^land$|^country$/i.test(h));
+    const restKeys    = headers.filter(h =>
+      h !== nameKey &&
+      !contactKeys.includes(h) &&
+      !financKeys.includes(h) &&
+      !sysKeys.includes(h)
+    );
+
+    const status = v[statusKey] || '';
+    let statusClass = 's-default';
+    if (status.toLowerCase() === 'actief')   statusClass = 's-actief';
+    if (status.toLowerCase() === 'inactief') statusClass = 's-inactief';
+
+    function row(k) {
+      const val = v[k] || '—';
+      const isMono  = /iban/i.test(k);
+      const isEmail = /mail|email/i.test(k);
+      const valHtml = isEmail && val !== '—'
+        ? `<a href="mailto:${val}">${val}</a>`
+        : val;
+      const copyVal = val.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
+      return `
+        <div class="field-row">
+          <span class="field-key">${k}</span>
+          <span class="field-val ${isMono ? 'mono' : ''}">${valHtml}</span>
+          <button class="copy-btn" onclick="kopieer(this, \`${copyVal}\`)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            kopieer
+          </button>
+        </div>`;
+    }
+
+    function section(label, keys) {
+      if (!keys.length) return '';
+      return `<div class="field-section"><span>${label}</span></div>${keys.map(row).join('')}`;
+    }
+
+    document.getElementById('ficheWrap').innerHTML = `
+      <div class="fiche-header">
+        <div>
+          <div class="vendor-id">${v[idKey] || ''}</div>
+          <div class="vendor-name">${v[nameKey] || '—'}</div>
+          <div class="vendor-cat">${v[catKey] || ''}</div>
+        </div>
+        <span class="status-badge ${statusClass}">${status || '—'}</span>
+      </div>
+      <div class="fiche-body">
+        ${section('Algemeen', sysKeys)}
+        ${section('Contact', contactKeys)}
+        ${section('Financieel', financKeys)}
+        ${section('Overige velden', restKeys)}
+      </div>
+    `;
+  }
+
+  /* ── COPY ── */
+  function kopieer(btn, val) {
+    if (!val || val === '—') return;
+    navigator.clipboard.writeText(val).then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 12 4 10"/></svg> gekopieerd`;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> kopieer`;
+      }, 2000);
+    });
+  }
+
+  /* ── NAV ── */
+  function naarZoek() {
+    document.getElementById('fiche').classList.remove('visible');
+    document.getElementById('searchSection').classList.add('visible');
+    zoekEl.value = '';
+    lijstEl.classList.remove('open');
+    zoekEl.focus();
+  }
+
+  /* ── START ── */
+  laadData();
+</script>
+</body>
+</html>
