@@ -4,314 +4,311 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vendorwall ACSW</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #FFFFFF;
-  --surface: #FAFAFA;
-  --border: #E8E8E8;
-  --border-strong: #D0D0D0;
-  --accent: #000000;
-  --text: #111111;
-  --muted: #888888;
-  --light: #F4F4F4;
+  --bg: #F7F7F8;
+  --surface: #FFFFFF;
+  --border: #EBEBEB;
+  --text: #0F0F0F;
+  --muted: #999999;
+  --light: #F2F2F3;
+  --sans: 'Inter', sans-serif;
   --mono: 'DM Mono', monospace;
-  --sans: 'Montserrat', sans-serif;
-  --green: #2D7A47;
-  --green-bg: #EDF7F1;
-  --red: #B03030;
-  --red-bg: #FAEAEA;
+  --green: #1E8A4A; --green-bg: #EDFAF3;
+  --red: #C13232;   --red-bg: #FDF0F0;
   --blue: #1A4A8A;
-  --blue-bg: #EEF3FC;
 }
 
-body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; position: relative; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
 
 body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
+  content: ''; position: fixed; inset: 0;
   background: url('bg.png') center center / cover no-repeat;
-  opacity: 0.07;
-  pointer-events: none;
-  z-index: 0;
+  opacity: 0.04; pointer-events: none; z-index: 0;
 }
 
-.main, header, .shortcuts-bar, .help-bubble { position: relative; z-index: 1; }
-
-/* ── HEADER ── */
+/* ═══════════════════════════════════════
+   HEADER — wit, lichte border, compact
+═══════════════════════════════════════ */
 header {
-  background: #000;
-  color: white;
-  display: grid;
-  grid-template-columns: 200px 1fr 200px;
-  align-items: center;
-  padding: 0 24px;
-  height: 56px;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  gap: 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 28px; height: 58px;
+  position: sticky; top: 0; z-index: 200;
+  gap: 20px;
 }
 
-.header-left { display: flex; align-items: center; gap: 12px; }
-.header-logo { height: 28px; width: auto; }
-.header-title { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: white; }
+/* Logo + naam links — zwart, compact */
+.header-left { display: flex; align-items: center; gap: 9px; flex-shrink: 0; min-width: 170px; }
+.header-logo { height: 22px; width: auto; filter: brightness(0); }
+.header-title {
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.04em; color: #0F0F0F;
+  white-space: nowrap; text-transform: none;
+}
 
-.header-search { position: relative; }
+/* Zoekbalk — centraal, pill, glow on focus */
+.header-search { position: relative; flex: 1; max-width: 440px; margin: 0 auto; }
+
 .header-search input {
-  width: 100%;
-  padding: 9px 14px 9px 38px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 6px;
-  color: white;
-  font-family: var(--sans);
-  font-size: 13px;
+  width: 100%; padding: 9px 18px 9px 38px;
+  background: var(--light);
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  color: var(--text); font-family: var(--sans); font-size: 13px;
   outline: none;
-  transition: background 0.15s, border-color 0.15s;
-  text-align: center;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
-.header-search input:focus { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.35); }
-.header-search input::placeholder { color: rgba(255,255,255,0.4); }
-.header-search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); pointer-events: none; }
 
-.header-right { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
-.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #aaa; flex-shrink: 0; }
+.header-search input:focus {
+  background: #fff;
+  border-color: #0F0F0F;
+  box-shadow: 0 0 0 3px rgba(15,15,15,0.08);
+}
+
+.header-search input::placeholder { color: #bbb; }
+
+/* Shimmer op input (subtiel) */
+.header-search input::before { display: none; }
+.search-glow-wrap { position: relative; }
+.search-glow-wrap::after {
+  content: '';
+  position: absolute; inset: 0; border-radius: 999px;
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.6) 50%, transparent 62%);
+  background-size: 250% 100%;
+  background-position: 250% 0;
+  pointer-events: none; z-index: 2;
+  animation: shimmer 4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 250% 0; opacity: 0; }
+  20%  { opacity: 1; }
+  50%  { background-position: -50% 0; }
+  51%  { opacity: 0; }
+  100% { background-position: -50% 0; opacity: 0; }
+}
+
+.search-icon {
+  position: absolute; left: 13px; top: 50%;
+  transform: translateY(-50%); color: #bbb;
+  pointer-events: none; z-index: 3;
+}
+
+/* Settings rechts */
+.header-right { display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; min-width: 170px; position: relative; }
+
+.settings-btn {
+  background: none; border: none; cursor: pointer;
+  color: #bbb; display: flex; align-items: center; padding: 7px;
+  border-radius: 8px; transition: background 0.12s, color 0.12s;
+}
+.settings-btn:hover { background: var(--light); color: var(--text); }
+
+/* ═══════════════════════════════════════
+   SETTINGS DROPDOWN
+═══════════════════════════════════════ */
+.settings-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  background: #fff; border-radius: 14px;
+  width: 296px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 12px 36px rgba(0,0,0,0.11);
+  display: none; z-index: 400;
+  animation: fadeDown 0.14s ease;
+  border: 1px solid rgba(0,0,0,0.07);
+}
+@keyframes fadeDown { from{opacity:0;transform:translateY(-7px)} to{opacity:1;transform:translateY(0)} }
+.settings-dropdown.open { display: block; }
+
+.sd-section { padding: 13px 15px; }
+.sd-section + .sd-section { border-top: 1px solid var(--border); }
+
+.sd-label {
+  font-size: 9.5px; font-family: var(--mono);
+  letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 9px;
+  display: flex; align-items: center; gap: 6px;
+}
+.sd-label svg { opacity: 0.45; }
+
+.sd-status { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: var(--text); }
+
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
 .sync-dot.loading { background: #f0c040; animation: pulse 1s infinite; }
-.sync-dot.ok  { background: #4caf7d; }
+.sync-dot.ok  { background: #3cba6e; }
 .sync-dot.err { background: #e05555; }
-.sync-label { font-size: 10px; font-family: var(--mono); color: white; letter-spacing: 0.05em; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-/* ── SEARCH DROPDOWN ── */
+.sd-links { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.sd-link {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 34px; padding: 6px 8px;
+  background: var(--light); border: 1px solid transparent; border-radius: 7px;
+  font-size: 11px; font-weight: 500; color: var(--text);
+  text-decoration: none; transition: all 0.11s; line-height: 1.3; text-align: center;
+}
+.sd-link:hover { background: #fff; border-color: var(--text); }
+
+.sd-help { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.sd-help strong { color: var(--text); font-weight: 600; }
+
+/* ═══════════════════════════════════════
+   SEARCH DROPDOWN
+═══════════════════════════════════════ */
 .search-dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0; right: 0;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  display: none;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  position: absolute; top: calc(100% + 7px); left: 0; right: 0;
+  background: #fff; border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; display: none;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.03), 0 12px 28px rgba(0,0,0,0.09);
   z-index: 300;
 }
 .search-dropdown.open { display: block; }
+
 .result-item {
-  padding: 10px 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.1s;
-  gap: 12px;
-  color: var(--text);
+  padding: 11px 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border); transition: background 0.09s; gap: 12px; color: var(--text);
 }
 .result-item:last-child { border-bottom: none; }
 .result-item:hover { background: var(--light); }
 .result-name { font-weight: 600; font-size: 13px; }
-.result-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.result-tag  { font-size: 10px; font-family: var(--mono); padding: 2px 8px; border-radius: 3px; background: var(--light); color: var(--muted); border: 1px solid var(--border); white-space: nowrap; }
-.no-results  { padding: 14px 16px; color: var(--muted); font-size: 13px; }
+.result-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.result-tag  { font-size: 10px; font-family: var(--mono); padding: 2px 8px; border-radius: 4px; background: var(--light); color: var(--muted); border: 1px solid var(--border); white-space: nowrap; }
+.no-results  { padding: 16px; color: var(--muted); font-size: 13px; text-align: center; }
 
-/* ── SHORTCUTS ── */
-.shortcuts-bar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 8px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.shortcut-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 16px;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-family: var(--sans);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text);
-  cursor: pointer;
-  text-decoration: none;
-  transition: border-color 0.15s, background 0.15s;
-}
-.shortcut-btn:hover { border-color: #000; background: var(--light); }
-.shortcuts-label { font-size: 10px; font-family: var(--mono); color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-right: 4px; }
+/* ═══════════════════════════════════════
+   MAIN CONTENT AREA
+═══════════════════════════════════════ */
+.main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; position: relative; z-index: 1; }
 
-/* ── HELP BUBBLE ── */
-.help-bubble { position: fixed; bottom: 28px; right: 28px; z-index: 999; }
-.help-btn {
-  width: 48px; height: 48px; border-radius: 50%;
-  background: #000; color: white; border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25); font-size: 20px;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.help-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
-.help-popup {
-  position: absolute; bottom: 60px; right: 0; width: 280px;
-  background: white; border: 1px solid var(--border); border-radius: 10px;
-  padding: 16px 18px; box-shadow: 0 8px 28px rgba(0,0,0,0.13);
-  display: none; animation: fadeUp 0.18s ease;
-}
-.help-popup.open { display: block; }
-.help-popup-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-.help-popup p { font-size: 12px; color: var(--muted); line-height: 1.65; }
-
-/* ── MAIN ── */
-.main { max-width: 900px; margin: 0 auto; padding: 28px 24px 80px; }
-
-/* ── LOADER ── */
-.loader { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 32px; gap: 16px; color: var(--muted); }
-.spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: #000; border-radius: 50%; animation: spin 0.7s linear infinite; }
+.loader { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 32px; gap: 14px; color: var(--muted); }
+.spinner { width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: #000; border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── ERROR ── */
-.err-state { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 32px; text-align: center; display: none; }
-.err-state h2 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
-.err-state p  { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.err-state { padding: 60px 32px; text-align: center; display: none; }
+.err-state h2 { font-size: 13px; font-weight: 600; color: var(--red); margin-bottom: 5px; }
+.err-state p  { font-size: 12px; color: var(--muted); }
 
-/* ── TABS ── */
+.first-load { display: none; text-align: center; padding: 80px 32px; color: var(--muted); font-size: 13px; }
+.first-load.visible { display: block; animation: fadeUp 0.3s ease; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ═══════════════════════════════════════
+   TABS
+═══════════════════════════════════════ */
 .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
 .tab {
-  padding: 10px 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.15s;
-  user-select: none;
+  padding: 10px 18px; font-size: 13px; font-weight: 500;
+  color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color 0.14s; user-select: none;
 }
-.tab.active { color: var(--text); border-bottom-color: #000; }
+.tab.active { color: var(--text); border-bottom-color: var(--text); }
 .tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeUp 0.2s ease; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+.tab-content.active { display: block; animation: fadeUp 0.18s ease; }
 
-.coming-soon {
-  text-align: center;
-  padding: 80px 32px;
-  color: var(--muted);
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-}
-.coming-soon h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+.coming-soon { text-align: center; padding: 80px 32px; color: var(--muted); border: 1px dashed var(--border); border-radius: 10px; }
+.coming-soon h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
 .coming-soon p  { font-size: 13px; }
 
-/* ── FICHE ── */
+/* ═══════════════════════════════════════
+   VENDOR FICHE — licht, clean card
+═══════════════════════════════════════ */
 .fiche { display: none; }
 .fiche.visible { display: block; animation: fadeUp 0.2s ease; }
 
-.fiche-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .fiche-header {
-  background: #000;
-  border-radius: 8px 8px 0 0;
+  background: var(--text); border-radius: 10px 10px 0 0;
   padding: 22px 24px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
 }
 .fh-left { flex: 1; min-width: 0; }
-.vendor-eye { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 4px; }
-.vendor-name { font-size: 20px; font-weight: 700; color: white; letter-spacing: -0.01em; }
-.fh-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.vendor-eye {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.28); text-transform: uppercase; margin-bottom: 5px;
+}
+.vendor-name { font-size: 19px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+.fh-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
 .fh-tag {
-  font-size: 11px; font-family: var(--mono);
-  padding: 3px 10px; border-radius: 3px;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.5);
+  font-size: 10.5px; font-family: var(--mono);
+  padding: 3px 9px; border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.45);
   white-space: nowrap;
 }
 .fh-tag.s-active   { background: var(--green-bg); color: var(--green); border-color: transparent; }
 .fh-tag.s-inactive { background: var(--red-bg);   color: var(--red);   border-color: transparent; }
 
-/* Sections */
-.fiche-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; background: white; }
+.export-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+  font-family: var(--sans); font-size: 11px; font-weight: 500;
+  color: rgba(255,255,255,0.8); cursor: pointer;
+  transition: background 0.12s; flex-shrink: 0; align-self: flex-start;
+}
+.export-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+
+/* Fiche body — clean white card */
+.fiche-body {
+  background: #fff; border: 1px solid var(--border);
+  border-top: none; border-radius: 0 0 10px 10px; overflow: hidden;
+}
 
 .section-hdr {
-  padding: 7px 20px;
-  background: var(--light);
-  border-bottom: 1px solid var(--border);
+  padding: 6px 20px;
+  background: var(--bg); border-bottom: 1px solid var(--border);
   border-top: 1px solid var(--border);
-  display: flex; align-items: center; gap: 8px;
 }
 .section-hdr:first-child { border-top: none; }
-.section-hdr span { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.section-hdr span {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
 
 .field-row {
-  display: grid;
-  grid-template-columns: 190px 1fr auto;
-  align-items: center;
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--border);
-  gap: 12px;
+  display: grid; grid-template-columns: 185px 1fr auto;
+  align-items: center; padding: 10px 20px;
+  border-bottom: 1px solid var(--border); gap: 12px;
   transition: background 0.08s;
 }
 .field-row:last-child { border-bottom: none; }
-.field-row:hover { background: var(--surface); }
-.field-key { font-size: 12px; color: var(--muted); font-weight: 400; }
-.field-val { font-size: 13px; color: var(--text); font-weight: 500; word-break: break-word; }
-.field-val.mono { font-family: var(--mono); font-size: 12px; font-weight: 400; }
-.field-val.empty { color: #ccc; font-weight: 400; }
+.field-row:hover { background: #FAFAFA; }
+
+.field-key  { font-size: 12px; color: var(--muted); font-weight: 400; }
+.field-val  { font-size: 13px; color: var(--text); font-weight: 500; word-break: break-word; }
+.field-val.mono  { font-family: var(--mono); font-size: 12px; font-weight: 400; }
+.field-val.empty { color: #d4d4d4; font-weight: 400; }
 .field-val a { color: var(--blue); text-decoration: none; }
 .field-val a:hover { text-decoration: underline; }
 .bool-yes { color: var(--green); font-family: var(--mono); font-size: 12px; font-weight: 500; }
-.bool-no  { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+.bool-no  { color: #ccc; font-family: var(--mono); font-size: 12px; }
 
-/* Copy & Export buttons */
 .copy-btn {
-  display: flex; align-items: center; gap: 4px;
-  padding: 3px 8px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  font-size: 10px; font-family: var(--mono);
-  color: var(--muted); cursor: pointer;
-  transition: all 0.12s; white-space: nowrap; flex-shrink: 0;
+  display: flex; align-items: center; gap: 3px;
+  padding: 3px 8px; background: transparent;
+  border: 1px solid var(--border); border-radius: 4px;
+  font-size: 10px; font-family: var(--mono); color: var(--muted);
+  cursor: pointer; transition: all 0.11s; white-space: nowrap; flex-shrink: 0;
 }
-.copy-btn:hover { border-color: #000; color: #000; background: var(--light); }
+.copy-btn:hover { border-color: var(--text); color: var(--text); background: var(--light); }
 .copy-btn.copied { border-color: var(--green); color: var(--green); background: var(--green-bg); }
 
-.export-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 14px;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-family: var(--sans);
-  font-size: 12px; font-weight: 500;
-  color: var(--text); cursor: pointer;
-  transition: border-color 0.12s, background 0.12s;
-}
-.export-btn:hover { border-color: #000; background: var(--light); }
-
-/* vendor-count */
-.vendor-count { font-family: var(--mono); font-size: 10px; color: var(--muted); }
-
-@media (max-width: 640px) {
-  header { grid-template-columns: auto 1fr auto; }
+@media (max-width: 600px) {
+  header { padding: 0 14px; }
   .header-title { display: none; }
-  .main { padding: 16px 12px 60px; }
-  .field-row { grid-template-columns: 120px 1fr auto; }
+  .main { padding: 20px 12px 60px; }
+  .field-row { grid-template-columns: 110px 1fr auto; }
 }
 </style>
 </head>
@@ -324,43 +321,67 @@ header {
   </div>
 
   <div class="header-search">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input type="text" id="zoek" placeholder="Zoek vendor op naam…" autocomplete="off" />
+    <div class="search-glow-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="zoek" placeholder="Zoek vendor op naam…" autocomplete="off" />
+    </div>
     <div class="search-dropdown" id="searchDropdown"></div>
   </div>
 
   <div class="header-right">
-    <div class="sync-dot loading" id="syncDot"></div>
-    <span class="sync-label" id="syncLabel">laden…</span>
+    <button class="settings-btn" onclick="toggleSettings()" title="Instellingen">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <circle cx="8" cy="6" r="2.2" fill="currentColor" stroke="none"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <circle cx="16" cy="12" r="2.2" fill="currentColor" stroke="none"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+        <circle cx="10" cy="18" r="2.2" fill="currentColor" stroke="none"/>
+      </svg>
+    </button>
+
+    <div class="settings-dropdown" id="settingsDropdown">
+      <div class="sd-section">
+        <div class="sd-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Status
+        </div>
+        <div class="sd-status">
+          <div class="sync-dot loading" id="syncDot"></div>
+          <span id="syncLabel">laden…</span>
+        </div>
+      </div>
+      <div class="sd-section">
+        <div class="sd-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Quick links
+        </div>
+        <div class="sd-links">
+          <a class="sd-link" href="https://app.clickup.com/9015401410/v/db/8cnr6y2-111675" target="_blank">Status Onboardings</a>
+          <a class="sd-link" href="https://forms.cloud.microsoft/e/4DTByi2rFW" target="_blank">New Onboarding</a>
+          <a class="sd-link" href="https://signpostlive-my.sharepoint.com/:x:/g/personal/automation_signpost_eu/IQDonVmV7yr7Qr0BuPe7gUWPAaV69vKwmgvPpLApxaek0_Q?e=sDDsTd" target="_blank">Intake Data</a>
+          <a class="sd-link" href="https://forms.cloud.microsoft/Pages/AnalysisPage.aspx?AnalyzerToken=vHuV4jFR1lJY6nTAcJMF1fP3RpIN56Vq&id=3Ef_b2dftUG0i51MbeSOqwTLRKlRxQJLlY1BWo7zheJURTU3Q1gwM05MVU5PWFhGVUdLTksyWUFHVy4u" target="_blank">Intake Analysis</a>
+          <a class="sd-link" href="https://docs.google.com/spreadsheets/d/1Kaghfx_3vxZljJzMknwQTPDTAhqT30SiWvV__2EcPgo/edit?gid=712742950#gid=712742950" target="_blank">Raw Masterdata</a>
+        </div>
+      </div>
+      <div class="sd-section">
+        <div class="sd-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Help
+        </div>
+        <p class="sd-help">Vragen of problemen? Neem contact op met <strong>Henri Bruyneel</strong> via Teams.</p>
+      </div>
+    </div>
   </div>
 </header>
-
-<!-- SHORTCUTS -->
-<div class="shortcuts-bar">
-  <span class="shortcuts-label">Quick links</span>
-  <a class="shortcut-btn" href="https://app.clickup.com/9015401410/v/db/8cnr6y2-111675" id="sc1" target="_blank">Status Onboardings</a>
-  <a class="shortcut-btn" href="https://forms.cloud.microsoft/e/4DTByi2rFW" id="sc2" target="_blank">New Onboarding</a>
-  <a class="shortcut-btn" href="https://signpostlive-my.sharepoint.com/:x:/g/personal/automation_signpost_eu/IQDonVmV7yr7Qr0BuPe7gUWPAaV69vKwmgvPpLApxaek0_Q?e=sDDsTd" id="sc3" target="_blank">Intake Data</a>
-  <a class="shortcut-btn" href="https://forms.cloud.microsoft/Pages/AnalysisPage.aspx?AnalyzerToken=vHuV4jFR1lJY6nTAcJMF1fP3RpIN56Vq&id=3Ef_b2dftUG0i51MbeSOqwTLRKlRxQJLlY1BWo7zheJURTU3Q1gwM05MVU5PWFhGVUdLTksyWUFHVy4u" id="sc4" target="_blank">Intake Analysis</a>
-  <a class="shortcut-btn" href="https://docs.google.com/spreadsheets/d/1Kaghfx_3vxZljJzMknwQTPDTAhqT30SiWvV__2EcPgo/edit?gid=712742950#gid=712742950" id="sc5" target="_blank">Raw Masterdata</a>
-</div>
-
-<!-- HELP BUBBLE -->
-<div class="help-bubble">
-  <div class="help-popup" id="helpPopup">
-    <div class="help-popup-title">Hulp nodig?</div>
-    <p>Als je vragen hebt of problemen ondervindt met deze interface, kan je contact opnemen met <strong style="color:var(--text);">Henri Bruyneel</strong> via Teams.</p>
-  </div>
-  <button class="help-btn" onclick="document.getElementById('helpPopup').classList.toggle('open')" title="Help">?</button>
-</div>
 
 <div class="main">
 
   <div class="loader" id="loader">
     <div class="spinner"></div>
-    <p style="font-size:13px;color:var(--muted);">Vendordata ophalen…</p>
+    <p style="font-size:12px;color:var(--muted);">Vendordata ophalen…</p>
   </div>
 
   <div class="err-state" id="errState">
@@ -368,29 +389,20 @@ header {
     <p>Neem a.u.b. contact op met Henri.</p>
   </div>
 
-  <!-- TABS -->
+  <div class="first-load" id="firstLoad">
+    Gebruik de zoekbalk bovenaan om een vendorfiche op te vragen.
+  </div>
+
   <div id="mainContent" style="display:none;">
     <div class="tabs">
       <div class="tab active" data-tab="passport">Vendor Passport</div>
       <div class="tab" data-tab="portfolio">Vendor Portfolio</div>
     </div>
-
     <div class="tab-content active" id="tab-passport">
       <div class="fiche" id="fiche">
-        <div class="fiche-topbar">
-          <span class="vendor-count" id="vendorCount"></span>
-          <button class="export-btn" onclick="exportTSV()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export voor Excel
-          </button>
-        </div>
         <div id="ficheWrap"></div>
       </div>
-      <div id="emptyState" style="text-align:center;padding:64px 32px;color:var(--muted);">
-        <p style="font-size:13px;">Zoek een vendor via de zoekbalk bovenaan.</p>
-      </div>
     </div>
-
     <div class="tab-content" id="tab-portfolio">
       <div class="coming-soon">
         <h3>Vendor Portfolio</h3>
@@ -402,27 +414,10 @@ header {
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────────────
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQYxFJ-AZ6u8FZaGNTV-OFbXZj_OQL2GH8BYXiwSQ6w4euTnmMIiPS-i9w7wlqESnqtHVSYfrdl1_1r/pub?gid=1614611974&single=true&output=csv';
-const NAME_KEY = 'Vendor';
 
-// ── LOGO EMBED ─────────────────────────────────────────────────────────────
 document.getElementById('logoImg').src = 'logo.png';
 
-// ── SHORTCUTS (aanpasbaar) ────────────────────────────────────────────────
-const SHORTCUTS = [
-  { label: 'Shortcut 1', url: '#' },
-  { label: 'Shortcut 2', url: '#' },
-  { label: 'Shortcut 3', url: '#' },
-  { label: 'Shortcut 4', url: '#' },
-  { label: 'Shortcut 5', url: '#' },
-];
-SHORTCUTS.forEach((s, i) => {
-  const el = document.getElementById('sc' + (i+1));
-  if (el) { el.href = s.url; el.textContent = s.label; }
-});
-
-// ── SECTIE DEFINITIES (vaste structuur + auto-append) ─────────────────────
 const SECTIONS = [
   { label: 'Company Information',  match: /^(status|category|country|vendor.?type)$/i },
   { label: 'Contact',              match: /primary.contact|contact.email|order.email|support.email|escalation/i },
@@ -432,28 +427,26 @@ const SECTIONS = [
   { label: 'Product & Technology', match: /platform|deployment|sso|mfa|#?sku|license.type|user.type|user.group|os.support/i },
   { label: 'Partnership & Renewal',match: /renewal|price.at.renewal|next.review|partnership|website|partner.portal/i },
 ];
-const HEADER_COLS = /^(vendor|status|category|country|vendor.?type)$/i;
+const HEADER_COLS = /^(status|category|country|vendor.?type)$/i;
 
-// ── STATE ─────────────────────────────────────────────────────────────────
+let NAME_KEY = 'Company Name';
 let vendors = [], headers = [], currentVendor = null, selectedIndex = -1;
 
-// ── DATA LADEN ────────────────────────────────────────────────────────────
+// ── DATA ──────────────────────────────────────────────────────────────────
 async function laadData() {
   setSync('loading', 'laden…');
   document.getElementById('loader').style.display = 'flex';
   document.getElementById('errState').style.display = 'none';
+  document.getElementById('firstLoad').classList.remove('visible');
   document.getElementById('mainContent').style.display = 'none';
-
   try {
     const res = await fetch(SHEET_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    parseCSV(text);
+    if (!res.ok) throw new Error();
+    parseCSV(await res.text());
     document.getElementById('loader').style.display = 'none';
-    document.getElementById('mainContent').style.display = 'block';
-    document.getElementById('vendorCount').textContent = vendors.length + ' vendors geladen';
-    setSync('ok', 'gesynchroniseerd');
-  } catch(e) {
+    document.getElementById('firstLoad').classList.add('visible');
+    setSync('ok', vendors.length + ' vendors geladen');
+  } catch {
     document.getElementById('loader').style.display = 'none';
     document.getElementById('errState').style.display = 'block';
     setSync('err', 'fout bij laden');
@@ -467,9 +460,12 @@ function setSync(s, l) {
 
 function parseCSV(text) {
   const lines = text.trim().split('\n').filter(l => l.trim());
-  const first = lines[0];
-  const sep = first.split(';').length > first.split(',').length ? ';' : ',';
-  headers = first.split(sep).map(h => h.trim().replace(/\r/g,'').replace(/^"|"$/g,''));
+  const sep = lines[0].split(';').length > lines[0].split(',').length ? ';' : ',';
+  headers = lines[0].split(sep).map(h => h.trim().replace(/\r/g,'').replace(/^"|"$/g,''));
+  NAME_KEY = headers.find(h => /^company.?name$/i.test(h))
+          || headers.find(h => /^vendor$/i.test(h))
+          || headers.find(h => /^name$/i.test(h))
+          || headers[0];
   vendors = lines.slice(1).map(line => {
     const vals = parseCSVLine(line, sep);
     const obj = {};
@@ -482,12 +478,16 @@ function parseCSVLine(line, sep) {
   const res = []; let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
-    if (c === '"') { inQ = !inQ; }
+    if (c === '"') inQ = !inQ;
     else if (c === sep && !inQ) { res.push(cur); cur = ''; }
     else cur += c;
   }
-  res.push(cur);
-  return res;
+  res.push(cur); return res;
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+function toggleSettings() {
+  document.getElementById('settingsDropdown').classList.toggle('open');
 }
 
 // ── ZOEKEN ────────────────────────────────────────────────────────────────
@@ -498,16 +498,13 @@ zoekEl.addEventListener('input', () => {
   const q = zoekEl.value.trim().toLowerCase();
   selectedIndex = -1;
   if (!q) { dropEl.classList.remove('open'); return; }
-
   const hits = vendors.filter(v => (v[NAME_KEY]||'').toLowerCase().includes(q));
   if (!hits.length) {
     dropEl.innerHTML = '<div class="no-results">Geen vendors gevonden</div>';
     dropEl.classList.add('open'); return;
   }
-
   const catK = headers.find(h => /^category$/i.test(h)) || '';
   const stK  = headers.find(h => /^status$/i.test(h)) || '';
-
   dropEl.innerHTML = hits.slice(0,15).map(v => `
     <div class="result-item" data-name="${esc(v[NAME_KEY])}">
       <div>
@@ -516,7 +513,6 @@ zoekEl.addEventListener('input', () => {
       </div>
       ${v[stK] ? `<span class="result-tag">${v[stK]}</span>` : ''}
     </div>`).join('');
-
   dropEl.querySelectorAll('.result-item').forEach(el => {
     el.addEventListener('click', () => kiesVendor(el.dataset.name));
   });
@@ -534,15 +530,11 @@ zoekEl.addEventListener('keydown', e => {
 
 document.addEventListener('click', e => {
   if (!e.target.closest('.header-search')) dropEl.classList.remove('open');
-  if (!e.target.closest('.help-bubble')) document.getElementById('helpPopup').classList.remove('open');
+  if (!e.target.closest('.header-right')) document.getElementById('settingsDropdown').classList.remove('open');
 });
 
-function updSel(items) { items.forEach((el,i) => el.classList.toggle('sel', i===selectedIndex)); }
-function hl(t, q) {
-  const i = t.toLowerCase().indexOf(q);
-  if (i === -1) return t;
-  return t.slice(0,i) + '<strong>' + t.slice(i,i+q.length) + '</strong>' + t.slice(i+q.length);
-}
+function updSel(i) { i.forEach((el,n) => el.classList.toggle('sel', n===selectedIndex)); }
+function hl(t, q) { const i = t.toLowerCase().indexOf(q); if (i===-1) return t; return t.slice(0,i)+'<strong>'+t.slice(i,i+q.length)+'</strong>'+t.slice(i+q.length); }
 function esc(s) { return (s||'').replace(/"/g,'&quot;'); }
 
 // ── VENDOR KIEZEN ─────────────────────────────────────────────────────────
@@ -552,23 +544,21 @@ function kiesVendor(name) {
   dropEl.classList.remove('open');
   zoekEl.value = '';
   currentVendor = v;
+  document.getElementById('firstLoad').classList.remove('visible');
+  document.getElementById('mainContent').style.display = 'block';
   toonFiche(v);
-  // Zorg dat tab Passport actief is
   setTab('passport');
   document.getElementById('fiche').classList.add('visible');
-  document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('fiche').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.scrollTo({ top: document.getElementById('fiche').offsetTop - 80, behavior: 'smooth' });
 }
 
-// ── FICHE RENDEREN ────────────────────────────────────────────────────────
+// ── FICHE ─────────────────────────────────────────────────────────────────
 function toonFiche(v) {
   const status  = v['Status'] || '';
   const cat     = v['Category'] || '';
   const country = v['Country'] || '';
   const type    = v['Vendor Type'] || '';
-
   const stClass = /actief|active/i.test(status) ? 's-active' : /inactief|inactive/i.test(status) ? 's-inactive' : '';
-
   const tags = [
     status  ? `<span class="fh-tag ${stClass}">${status}</span>` : '',
     cat     ? `<span class="fh-tag">${cat}</span>` : '',
@@ -576,11 +566,9 @@ function toonFiche(v) {
     type    ? `<span class="fh-tag">${type}</span>` : '',
   ].filter(Boolean).join('');
 
-  // Bucket kolommen
   const headerSet = new Set(headers.filter(h => HEADER_COLS.test(h)));
   const buckets = SECTIONS.map(s => ({ label: s.label, keys: [] }));
   const extra = { label: 'Extra', keys: [] };
-
   headers.forEach(h => {
     if (h === NAME_KEY || headerSet.has(h)) return;
     const idx = SECTIONS.findIndex(s => s.match.test(h));
@@ -589,7 +577,9 @@ function toonFiche(v) {
   });
 
   const allSections = [...buckets, extra].filter(s => s.keys.length > 0);
-  const sectionsHTML = allSections.map(s => renderSection(s.label, s.keys, v)).join('');
+  const sectionsHTML = allSections.map(s =>
+    `<div class="section-hdr"><span>${s.label}</span></div>${s.keys.map(k => renderRow(k, v[k])).join('')}`
+  ).join('');
 
   document.getElementById('ficheWrap').innerHTML = `
     <div class="fiche-header">
@@ -598,50 +588,38 @@ function toonFiche(v) {
         <div class="vendor-name">${v[NAME_KEY] || '—'}</div>
         <div class="fh-tags">${tags}</div>
       </div>
+      <button class="export-btn" onclick="exportTSV()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Excel
+      </button>
     </div>
-    <div class="fiche-body">${sectionsHTML}</div>
-  `;
-}
-
-function renderSection(label, keys, v) {
-  return `<div class="section-hdr"><span>${label}</span></div>${keys.map(k => renderRow(k, v[k])).join('')}`;
+    <div class="fiche-body">${sectionsHTML}</div>`;
 }
 
 function renderRow(key, rawVal) {
   const val = (rawVal || '').trim();
   const empty = !val;
   let html = '';
-
-  if (empty) {
-    html = `<span class="field-val empty">—</span>`;
-  } else if (isURL(val)) {
+  if (empty) html = `<span class="field-val empty">—</span>`;
+  else if (/^https?:\/\//i.test(val)) {
     const short = val.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'').slice(0,50);
     html = `<span class="field-val"><a href="${val}" target="_blank" rel="noopener">${short}</a></span>`;
-  } else if (isEmailKey(key)) {
+  } else if (/email|mail/i.test(key)) {
     html = `<span class="field-val"><a href="mailto:${val}">${val}</a></span>`;
-  } else if (isBool(val)) {
+  } else if (/^(yes|no|ja|nee|true|false|✓|✗|x)$/i.test(val)) {
     const yes = /^(yes|ja|true|✓|x)$/i.test(val);
     html = `<span class="${yes?'bool-yes':'bool-no'}">${yes?'✓':'✗'} ${val}</span>`;
-  } else if (isMonoKey(key)) {
+  } else if (/erp.?code|iban|discount|margin|#?sku|bic|swift/i.test(key)) {
     html = `<span class="field-val mono">${val}</span>`;
   } else {
     html = `<span class="field-val">${val}</span>`;
   }
-
-  const copyable = !empty && !isURL(val);
-  const copyBtn = copyable
-    ? `<button class="copy-btn" onclick="kopieer(this,${JSON.stringify(val)})">
+  const copyBtn = empty ? `<span></span>`
+    : `<button class="copy-btn" onclick="kopieer(this,${JSON.stringify(val)})">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        kopieer</button>`
-    : `<span></span>`;
-
+        kopieer</button>`;
   return `<div class="field-row"><span class="field-key">${key}</span>${html}${copyBtn}</div>`;
 }
-
-function isURL(v)      { return /^https?:\/\//i.test(v); }
-function isEmailKey(k) { return /email|mail/i.test(k); }
-function isBool(v)     { return /^(yes|no|ja|nee|true|false|✓|✗|x)$/i.test(v); }
-function isMonoKey(k)  { return /erp.?code|iban|discount|margin|#?sku|bic|swift/i.test(k); }
 
 // ── COPY ──────────────────────────────────────────────────────────────────
 function kopieer(btn, val) {
@@ -651,44 +629,35 @@ function kopieer(btn, val) {
     btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 12 4 10"/></svg> gekopieerd`;
     setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> kopieer`; }, 2000);
   };
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(val).then(done).catch(() => fallback(val, done));
-  } else fallback(val, done);
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(val).then(done).catch(() => fallback(val, done));
+  else fallback(val, done);
 }
 function fallback(val, cb) {
   const t = document.createElement('textarea');
   t.value = val; t.style.cssText = 'position:fixed;opacity:0;';
   document.body.appendChild(t); t.focus(); t.select();
-  try { document.execCommand('copy'); cb(); } catch(e) {}
+  try { document.execCommand('copy'); cb(); } catch {}
   document.body.removeChild(t);
 }
 
-// ── EXPORT TSV ────────────────────────────────────────────────────────────
+// ── EXPORT ────────────────────────────────────────────────────────────────
 function exportTSV() {
   if (!currentVendor) return;
-  const v = currentVendor;
-  const rows = [['Veld', 'Waarde']];
-  headers.forEach(h => { if (v[h] !== undefined) rows.push([h, v[h] || '']); });
+  const rows = [['Veld','Waarde'], ...headers.map(h => [h, currentVendor[h]||''])];
   const tsv = rows.map(r => r.map(c => c.replace(/\t/g,' ')).join('\t')).join('\n');
-  const blob = new Blob([tsv], { type: 'text/tab-separated-values' });
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = (v[NAME_KEY] || 'vendor').replace(/[^a-zA-Z0-9]/g,'_') + '.tsv';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  a.href = URL.createObjectURL(new Blob([tsv], {type:'text/tab-separated-values'}));
+  a.download = (currentVendor[NAME_KEY]||'vendor').replace(/[^a-zA-Z0-9]/g,'_') + '.tsv';
+  a.click(); URL.revokeObjectURL(a.href);
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => setTab(tab.dataset.tab));
-});
-
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setTab(t.dataset.tab)));
 function setTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + name));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id==='tab-'+name));
 }
 
-// ── START ─────────────────────────────────────────────────────────────────
 laadData();
 </script>
 </body>
