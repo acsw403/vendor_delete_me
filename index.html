@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vendorwall ACSW</title>
+<title>Vendors | Academic Software</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #F7F7F8;
+  --bg: #F0F0F1;
   --surface: #FFFFFF;
-  --border: #EBEBEB;
+  --border: #E4E4E4;
   --text: #0F0F0F;
-  --muted: #999999;
+  --muted: #999;
   --light: #F2F2F3;
   --sans: 'Inter', sans-serif;
   --mono: 'DM Mono', monospace;
-  --green: #1E8A4A; --green-bg: #EDFAF3;
+  --green: #1A7A40; --green-bg: #EDFAF3;
   --red: #C13232;   --red-bg: #FDF0F0;
   --blue: #1A4A8A;
 }
@@ -38,54 +38,37 @@ body::before {
 }
 
 /* ═══════════════════════════════════════
-   HEADER — wit, lichte border, compact
+   HEADER — frosted glass, 10% taller
 ═══════════════════════════════════════ */
 header {
-  background: #fff;
-  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
   display: flex; align-items: center;
-  padding: 0 28px; height: 58px;
+  padding: 0 30px; height: 64px;
   position: sticky; top: 0; z-index: 200;
   gap: 20px;
 }
 
-/* Logo + naam links — zwart, compact */
-.header-left { display: flex; align-items: center; gap: 9px; flex-shrink: 0; min-width: 170px; }
-.header-logo { height: 22px; width: auto; filter: brightness(0); }
+/* Logo + naam links */
+.header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; min-width: 180px; }
+.header-logo { height: 24px; width: auto; filter: brightness(0); }
 .header-title {
-  font-size: 13px; font-weight: 600;
-  letter-spacing: 0.04em; color: #0F0F0F;
-  white-space: nowrap; text-transform: none;
+  font-size: 16px; font-weight: 600;
+  letter-spacing: -0.01em; color: #0F0F0F;
+  white-space: nowrap;
 }
 
-/* Zoekbalk — centraal, pill, glow on focus */
+/* Zoekbalk */
 .header-search { position: relative; flex: 1; max-width: 440px; margin: 0 auto; }
 
-.header-search input {
-  width: 100%; padding: 9px 18px 9px 38px;
-  background: var(--light);
-  border: 1.5px solid transparent;
-  border-radius: 999px;
-  color: var(--text); font-family: var(--sans); font-size: 13px;
-  outline: none;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-}
-
-.header-search input:focus {
-  background: #fff;
-  border-color: #0F0F0F;
-  box-shadow: 0 0 0 3px rgba(15,15,15,0.08);
-}
-
-.header-search input::placeholder { color: #bbb; }
-
-/* Shimmer op input (subtiel) */
-.header-search input::before { display: none; }
 .search-glow-wrap { position: relative; }
+
 .search-glow-wrap::after {
   content: '';
   position: absolute; inset: 0; border-radius: 999px;
-  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.6) 50%, transparent 62%);
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.7) 50%, transparent 62%);
   background-size: 250% 100%;
   background-position: 250% 0;
   pointer-events: none; z-index: 2;
@@ -93,27 +76,53 @@ header {
 }
 @keyframes shimmer {
   0%   { background-position: 250% 0; opacity: 0; }
-  20%  { opacity: 1; }
+  15%  { opacity: 1; }
   50%  { background-position: -50% 0; }
   51%  { opacity: 0; }
   100% { background-position: -50% 0; opacity: 0; }
 }
 
+.header-search input {
+  width: 100%; padding: 10px 18px 10px 40px;
+  background: rgba(255,255,255,0.92);
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: 999px;
+  color: var(--text); font-family: var(--sans); font-size: 13px;
+  outline: none; text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  position: relative; z-index: 1;
+}
+.header-search input:focus {
+  background: #fff;
+  border-color: rgba(0,0,0,0.3);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.07);
+}
+.header-search input::placeholder {
+  color: #bbb;
+  text-align: center;
+  /* trick: shift placeholder right by icon width to visually center */
+}
+/* Centered placeholder via direction trick */
+.header-search input:placeholder-shown { text-indent: -14px; }
+.header-search input:not(:placeholder-shown),
+.header-search input:focus { text-indent: 0; }
+
 .search-icon {
-  position: absolute; left: 13px; top: 50%;
-  transform: translateY(-50%); color: #bbb;
-  pointer-events: none; z-index: 3;
+  position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: #bbb; pointer-events: none; z-index: 3;
 }
 
 /* Settings rechts */
-.header-right { display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; min-width: 170px; position: relative; }
+.header-right { display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; min-width: 180px; position: relative; }
 
 .settings-btn {
   background: none; border: none; cursor: pointer;
-  color: #bbb; display: flex; align-items: center; padding: 7px;
+  color: #aaa;
+  display: flex; align-items: center; padding: 8px;
   border-radius: 8px; transition: background 0.12s, color 0.12s;
 }
-.settings-btn:hover { background: var(--light); color: var(--text); }
+.settings-btn:hover { background: rgba(0,0,0,0.06); color: #555; }
 
 /* ═══════════════════════════════════════
    SETTINGS DROPDOWN
@@ -155,7 +164,7 @@ header {
   min-height: 34px; padding: 6px 8px;
   background: var(--light); border: 1px solid transparent; border-radius: 7px;
   font-size: 11px; font-weight: 500; color: var(--text);
-  text-decoration: none; transition: all 0.11s; line-height: 1.3; text-align: center;
+  text-decoration: none; transition: all 0.11s; text-align: center; line-height: 1.3;
 }
 .sd-link:hover { background: #fff; border-color: var(--text); }
 
@@ -176,18 +185,16 @@ header {
 
 .result-item {
   padding: 11px 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: space-between;
-  border-bottom: 1px solid var(--border); transition: background 0.09s; gap: 12px; color: var(--text);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.09s; color: var(--text);
 }
 .result-item:last-child { border-bottom: none; }
 .result-item:hover { background: var(--light); }
 .result-name { font-weight: 600; font-size: 13px; }
-.result-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.result-tag  { font-size: 10px; font-family: var(--mono); padding: 2px 8px; border-radius: 4px; background: var(--light); color: var(--muted); border: 1px solid var(--border); white-space: nowrap; }
-.no-results  { padding: 16px; color: var(--muted); font-size: 13px; text-align: center; }
+.no-results { padding: 16px; color: var(--muted); font-size: 13px; text-align: center; }
 
 /* ═══════════════════════════════════════
-   MAIN CONTENT AREA
+   MAIN
 ═══════════════════════════════════════ */
 .main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; position: relative; z-index: 1; }
 
@@ -201,20 +208,26 @@ header {
 
 .first-load { display: none; text-align: center; padding: 80px 32px; color: var(--muted); font-size: 13px; }
 .first-load.visible { display: block; animation: fadeUp 0.3s ease; }
-
 @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
 /* ═══════════════════════════════════════
-   TABS
+   TABS — verfijnd
 ═══════════════════════════════════════ */
-.tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.tabs {
+  display: flex; gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
 .tab {
-  padding: 10px 18px; font-size: 13px; font-weight: 500;
+  padding: 9px 16px; font-size: 13px; font-weight: 500;
   color: var(--muted); cursor: pointer;
   border-bottom: 2px solid transparent; margin-bottom: -1px;
-  transition: color 0.14s; user-select: none;
+  border-radius: 6px 6px 0 0;
+  transition: color 0.13s, background 0.13s; user-select: none;
+  letter-spacing: -0.01em;
 }
-.tab.active { color: var(--text); border-bottom-color: var(--text); }
+.tab:hover { color: var(--text); background: rgba(0,0,0,0.03); }
+.tab.active { color: var(--text); border-bottom-color: var(--text); background: none; }
 .tab-content { display: none; }
 .tab-content.active { display: block; animation: fadeUp 0.18s ease; }
 
@@ -223,43 +236,52 @@ header {
 .coming-soon p  { font-size: 13px; }
 
 /* ═══════════════════════════════════════
-   VENDOR FICHE — licht, clean card
+   VENDOR FICHE
 ═══════════════════════════════════════ */
 .fiche { display: none; }
 .fiche.visible { display: block; animation: fadeUp 0.2s ease; }
 
+/* Fiche header — status linksboven, naam groot, Excel rechts */
 .fiche-header {
-  background: var(--text); border-radius: 10px 10px 0 0;
-  padding: 22px 24px;
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  background: #111; border-radius: 10px 10px 0 0;
+  padding: 20px 24px 22px;
 }
-.fh-left { flex: 1; min-width: 0; }
-.vendor-eye {
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em;
-  color: rgba(255,255,255,0.28); text-transform: uppercase; margin-bottom: 5px;
+
+.fh-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 10px; }
+
+.fh-status-tag {
+  font-size: 11px; font-family: var(--mono); font-weight: 500;
+  padding: 3px 10px; border-radius: 4px;
+  background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6);
+  white-space: nowrap; align-self: flex-start;
 }
-.vendor-name { font-size: 19px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
-.fh-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-.fh-tag {
-  font-size: 10.5px; font-family: var(--mono);
-  padding: 3px 9px; border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.45);
-  white-space: nowrap;
-}
-.fh-tag.s-active   { background: var(--green-bg); color: var(--green); border-color: transparent; }
-.fh-tag.s-inactive { background: var(--red-bg);   color: var(--red);   border-color: transparent; }
+.fh-status-tag.s-active   { background: var(--green-bg); color: var(--green); }
+.fh-status-tag.s-inactive { background: var(--red-bg);   color: var(--red); }
+.fh-status-tag.s-new      { background: #EEF3FC; color: #1A4A8A; }
 
 .export-btn {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 6px 12px; background: rgba(255,255,255,0.1);
+  padding: 6px 13px; background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
   font-family: var(--sans); font-size: 11px; font-weight: 500;
   color: rgba(255,255,255,0.8); cursor: pointer;
-  transition: background 0.12s; flex-shrink: 0; align-self: flex-start;
+  transition: background 0.12s; flex-shrink: 0;
 }
-.export-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+.export-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
-/* Fiche body — clean white card */
+.vendor-name {
+  font-size: 26px; font-weight: 700; color: #fff;
+  letter-spacing: -0.03em; line-height: 1.1;
+}
+
+.fh-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.fh-tag {
+  font-size: 11px; padding: 3px 9px; border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.45);
+  white-space: nowrap;
+}
+
+/* Fiche body */
 .fiche-body {
   background: #fff; border: 1px solid var(--border);
   border-top: none; border-radius: 0 0 10px 10px; overflow: hidden;
@@ -300,13 +322,14 @@ header {
   border: 1px solid var(--border); border-radius: 4px;
   font-size: 10px; font-family: var(--mono); color: var(--muted);
   cursor: pointer; transition: all 0.11s; white-space: nowrap; flex-shrink: 0;
+  font-family: var(--sans);
 }
 .copy-btn:hover { border-color: var(--text); color: var(--text); background: var(--light); }
 .copy-btn.copied { border-color: var(--green); color: var(--green); background: var(--green-bg); }
 
 @media (max-width: 600px) {
   header { padding: 0 14px; }
-  .header-title { display: none; }
+  .header-title { font-size: 14px; }
   .main { padding: 20px 12px 60px; }
   .field-row { grid-template-columns: 110px 1fr auto; }
 }
@@ -325,20 +348,17 @@ header {
       <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      <input type="text" id="zoek" placeholder="Zoek vendor op naam…" autocomplete="off" />
+      <input type="text" id="zoek" placeholder="Search Vendor" autocomplete="off" />
     </div>
     <div class="search-dropdown" id="searchDropdown"></div>
   </div>
 
   <div class="header-right">
     <button class="settings-btn" onclick="toggleSettings()" title="Instellingen">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-        <line x1="3" y1="6" x2="21" y2="6"/>
-        <circle cx="8" cy="6" r="2.2" fill="currentColor" stroke="none"/>
-        <line x1="3" y1="12" x2="21" y2="12"/>
-        <circle cx="16" cy="12" r="2.2" fill="currentColor" stroke="none"/>
-        <line x1="3" y1="18" x2="21" y2="18"/>
-        <circle cx="10" cy="18" r="2.2" fill="currentColor" stroke="none"/>
+      <!-- Tandwiel icon -->
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
       </svg>
     </button>
 
@@ -350,7 +370,7 @@ header {
         </div>
         <div class="sd-status">
           <div class="sync-dot loading" id="syncDot"></div>
-          <span id="syncLabel">laden…</span>
+          <span id="syncLabel">Loading…</span>
         </div>
       </div>
       <div class="sd-section">
@@ -371,7 +391,7 @@ header {
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           Help
         </div>
-        <p class="sd-help">Vragen of problemen? Neem contact op met <strong>Henri Bruyneel</strong> via Teams.</p>
+        <p class="sd-help">Questions or issues? Please contact <strong>Henri Bruyneel</strong> via Teams.</p>
       </div>
     </div>
   </div>
@@ -381,22 +401,22 @@ header {
 
   <div class="loader" id="loader">
     <div class="spinner"></div>
-    <p style="font-size:12px;color:var(--muted);">Vendordata ophalen…</p>
+    <p style="font-size:12px;color:var(--muted);">Loading vendor data…</p>
   </div>
 
   <div class="err-state" id="errState">
-    <h2>Fout met laden vendordata</h2>
-    <p>Neem a.u.b. contact op met Henri.</p>
+    <h2>Error loading vendor data</h2>
+    <p>Please contact Henri for assistance.</p>
   </div>
 
   <div class="first-load" id="firstLoad">
-    Gebruik de zoekbalk bovenaan om een vendorfiche op te vragen.
+    Use the search bar above to look up a vendor.
   </div>
 
   <div id="mainContent" style="display:none;">
     <div class="tabs">
-      <div class="tab active" data-tab="passport">Vendor Passport</div>
-      <div class="tab" data-tab="portfolio">Vendor Portfolio</div>
+      <div class="tab active" data-tab="passport">Passport</div>
+      <div class="tab" data-tab="portfolio">Portfolio</div>
     </div>
     <div class="tab-content active" id="tab-passport">
       <div class="fiche" id="fiche">
@@ -406,7 +426,7 @@ header {
     <div class="tab-content" id="tab-portfolio">
       <div class="coming-soon">
         <h3>Vendor Portfolio</h3>
-        <p>Coming soon — overzicht & analytics van het volledige leveranciersportfolio.</p>
+        <p>Coming soon — portfolio overview & analytics for all vendors.</p>
       </div>
     </div>
   </div>
@@ -434,7 +454,7 @@ let vendors = [], headers = [], currentVendor = null, selectedIndex = -1;
 
 // ── DATA ──────────────────────────────────────────────────────────────────
 async function laadData() {
-  setSync('loading', 'laden…');
+  setSync('loading', 'Loading…');
   document.getElementById('loader').style.display = 'flex';
   document.getElementById('errState').style.display = 'none';
   document.getElementById('firstLoad').classList.remove('visible');
@@ -445,11 +465,11 @@ async function laadData() {
     parseCSV(await res.text());
     document.getElementById('loader').style.display = 'none';
     document.getElementById('firstLoad').classList.add('visible');
-    setSync('ok', vendors.length + ' vendors geladen');
+    setSync('ok', vendors.length + ' vendors loaded');
   } catch {
     document.getElementById('loader').style.display = 'none';
     document.getElementById('errState').style.display = 'block';
-    setSync('err', 'fout bij laden');
+    setSync('err', 'error loading data');
   }
 }
 
@@ -494,25 +514,30 @@ function toggleSettings() {
 const zoekEl = document.getElementById('zoek');
 const dropEl = document.getElementById('searchDropdown');
 
+zoekEl.addEventListener('focus', () => {
+  zoekEl.placeholder = '';
+});
+zoekEl.addEventListener('blur', () => {
+  if (!zoekEl.value) zoekEl.placeholder = 'Search Vendor';
+});
+
 zoekEl.addEventListener('input', () => {
   const q = zoekEl.value.trim().toLowerCase();
   selectedIndex = -1;
   if (!q) { dropEl.classList.remove('open'); return; }
+
   const hits = vendors.filter(v => (v[NAME_KEY]||'').toLowerCase().includes(q));
   if (!hits.length) {
     dropEl.innerHTML = '<div class="no-results">Geen vendors gevonden</div>';
     dropEl.classList.add('open'); return;
   }
-  const catK = headers.find(h => /^category$/i.test(h)) || '';
-  const stK  = headers.find(h => /^status$/i.test(h)) || '';
-  dropEl.innerHTML = hits.slice(0,15).map(v => `
+
+  // Enkel company name tonen
+  dropEl.innerHTML = hits.slice(0,20).map(v => `
     <div class="result-item" data-name="${esc(v[NAME_KEY])}">
-      <div>
-        <div class="result-name">${hl(v[NAME_KEY], q)}</div>
-        <div class="result-sub">${v[catK]||''}</div>
-      </div>
-      ${v[stK] ? `<span class="result-tag">${v[stK]}</span>` : ''}
+      <div class="result-name">${hl(v[NAME_KEY], q)}</div>
     </div>`).join('');
+
   dropEl.querySelectorAll('.result-item').forEach(el => {
     el.addEventListener('click', () => kiesVendor(el.dataset.name));
   });
@@ -533,8 +558,12 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.header-right')) document.getElementById('settingsDropdown').classList.remove('open');
 });
 
-function updSel(i) { i.forEach((el,n) => el.classList.toggle('sel', n===selectedIndex)); }
-function hl(t, q) { const i = t.toLowerCase().indexOf(q); if (i===-1) return t; return t.slice(0,i)+'<strong>'+t.slice(i,i+q.length)+'</strong>'+t.slice(i+q.length); }
+function updSel(items) { items.forEach((el,i) => el.classList.toggle('sel', i===selectedIndex)); }
+function hl(t, q) {
+  const i = t.toLowerCase().indexOf(q);
+  if (i===-1) return t;
+  return t.slice(0,i)+'<strong>'+t.slice(i,i+q.length)+'</strong>'+t.slice(i+q.length);
+}
 function esc(s) { return (s||'').replace(/"/g,'&quot;'); }
 
 // ── VENDOR KIEZEN ─────────────────────────────────────────────────────────
@@ -543,6 +572,8 @@ function kiesVendor(name) {
   if (!v) return;
   dropEl.classList.remove('open');
   zoekEl.value = '';
+  zoekEl.placeholder = 'Search Vendor';
+  zoekEl.blur();
   currentVendor = v;
   document.getElementById('firstLoad').classList.remove('visible');
   document.getElementById('mainContent').style.display = 'block';
@@ -558,9 +589,13 @@ function toonFiche(v) {
   const cat     = v['Category'] || '';
   const country = v['Country'] || '';
   const type    = v['Vendor Type'] || '';
-  const stClass = /actief|active/i.test(status) ? 's-active' : /inactief|inactive/i.test(status) ? 's-inactive' : '';
+
+  const stClass = /^active$/i.test(status) ? 's-active'
+                : /^(inactive|inactief)$/i.test(status) ? 's-inactive'
+                : /^new$/i.test(status) ? 's-new' : '';
+
+  // Tags (categorie, land, type — geen status, die staat al linksboven)
   const tags = [
-    status  ? `<span class="fh-tag ${stClass}">${status}</span>` : '',
     cat     ? `<span class="fh-tag">${cat}</span>` : '',
     country ? `<span class="fh-tag">${country}</span>` : '',
     type    ? `<span class="fh-tag">${type}</span>` : '',
@@ -583,15 +618,15 @@ function toonFiche(v) {
 
   document.getElementById('ficheWrap').innerHTML = `
     <div class="fiche-header">
-      <div class="fh-left">
-        <div class="vendor-eye">vendor passport</div>
-        <div class="vendor-name">${v[NAME_KEY] || '—'}</div>
-        <div class="fh-tags">${tags}</div>
+      <div class="fh-top">
+        ${status ? `<span class="fh-status-tag ${stClass}">${status}</span>` : '<span></span>'}
+        <button class="export-btn" onclick="exportToClipboard()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Excel
+        </button>
       </div>
-      <button class="export-btn" onclick="exportTSV()">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Excel
-      </button>
+      <div class="vendor-name">${v[NAME_KEY] || '—'}</div>
+      ${tags ? `<div class="fh-tags">${tags}</div>` : ''}
     </div>
     <div class="fiche-body">${sectionsHTML}</div>`;
 }
@@ -600,9 +635,10 @@ function renderRow(key, rawVal) {
   const val = (rawVal || '').trim();
   const empty = !val;
   let html = '';
-  if (empty) html = `<span class="field-val empty">—</span>`;
-  else if (/^https?:\/\//i.test(val)) {
-    const short = val.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'').slice(0,50);
+  if (empty) {
+    html = `<span class="field-val empty">—</span>`;
+  } else if (/^https?:\/\//i.test(val)) {
+    const short = val.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'').slice(0,52);
     html = `<span class="field-val"><a href="${val}" target="_blank" rel="noopener">${short}</a></span>`;
   } else if (/email|mail/i.test(key)) {
     html = `<span class="field-val"><a href="mailto:${val}">${val}</a></span>`;
@@ -614,41 +650,64 @@ function renderRow(key, rawVal) {
   } else {
     html = `<span class="field-val">${val}</span>`;
   }
+
   const copyBtn = empty ? `<span></span>`
-    : `<button class="copy-btn" onclick="kopieer(this,${JSON.stringify(val)})">
+    : `<button class="copy-btn" onclick="kopieerVeld(this, ${JSON.stringify(val)})">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        kopieer</button>`;
+        copy</button>`;
+
   return `<div class="field-row"><span class="field-key">${key}</span>${html}${copyBtn}</div>`;
 }
 
-// ── COPY ──────────────────────────────────────────────────────────────────
-function kopieer(btn, val) {
+// ── COPY VELD ─────────────────────────────────────────────────────────────
+function kopieerVeld(btn, val) {
   if (!val) return;
   const done = () => {
     btn.classList.add('copied');
-    btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 12 4 10"/></svg> gekopieerd`;
-    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> kopieer`; }, 2000);
+    btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 12 4 10"/></svg> copied`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> copy`;
+    }, 2000);
   };
-  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(val).then(done).catch(() => fallback(val, done));
-  else fallback(val, done);
-}
-function fallback(val, cb) {
-  const t = document.createElement('textarea');
-  t.value = val; t.style.cssText = 'position:fixed;opacity:0;';
-  document.body.appendChild(t); t.focus(); t.select();
-  try { document.execCommand('copy'); cb(); } catch {}
-  document.body.removeChild(t);
+  schrijfNaarClipboard(val, done);
 }
 
-// ── EXPORT ────────────────────────────────────────────────────────────────
-function exportTSV() {
+// ── EXPORT NAAR CLIPBOARD (Excel-pasteable) ───────────────────────────────
+function exportToClipboard() {
   if (!currentVendor) return;
-  const rows = [['Veld','Waarde'], ...headers.map(h => [h, currentVendor[h]||''])];
-  const tsv = rows.map(r => r.map(c => c.replace(/\t/g,' ')).join('\t')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([tsv], {type:'text/tab-separated-values'}));
-  a.download = (currentVendor[NAME_KEY]||'vendor').replace(/[^a-zA-Z0-9]/g,'_') + '.tsv';
-  a.click(); URL.revokeObjectURL(a.href);
+  const v = currentVendor;
+  const rows = headers
+    .filter(h => v[h] && v[h].trim())
+    .map(h => `${h}\t${v[h]}`);
+  const text = rows.join('\n');
+  const btn = document.querySelector('.export-btn');
+  const done = () => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 12 4 10"/></svg> Copied!`;
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  };
+  schrijfNaarClipboard(text, done);
+}
+
+// ── CLIPBOARD HELPER (werkt op http én https) ─────────────────────────────
+function schrijfNaarClipboard(text, callback) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(callback).catch(() => fallback(text, callback));
+  } else {
+    fallback(text, callback);
+  }
+}
+
+function fallback(text, callback) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); callback(); } catch(e) {}
+  document.body.removeChild(ta);
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────
