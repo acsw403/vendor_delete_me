@@ -3,524 +3,600 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VendorDB Fiche</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Vendorwall ACSW</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #F5F3EE;
-    --surface: #FFFFFF;
-    --border: #E0DDD6;
-    --accent: #1A1A2E;
-    --accent2: #4A4E8C;
-    --muted: #8A8880;
-    --text: #1C1C1C;
-    --tag-bg: #EEEDF8;
-    --tag-text: #3C3489;
-    --active-bg: #EAF5EE;
-    --active-text: #2A6B3C;
-    --inactive-bg: #F5EEEE;
-    --inactive-text: #8B3A3A;
-    --mono: 'DM Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
-  }
+:root {
+  --bg: #FFFFFF;
+  --surface: #FAFAFA;
+  --border: #E8E8E8;
+  --border-strong: #D0D0D0;
+  --accent: #000000;
+  --text: #111111;
+  --muted: #888888;
+  --light: #F4F4F4;
+  --mono: 'DM Mono', monospace;
+  --sans: 'Montserrat', sans-serif;
+  --green: #2D7A47;
+  --green-bg: #EDF7F1;
+  --red: #B03030;
+  --red-bg: #FAEAEA;
+  --blue: #1A4A8A;
+  --blue-bg: #EEF3FC;
+}
 
-  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; position: relative; }
 
-  /* HEADER */
-  header {
-    background: var(--accent);
-    color: white;
-    padding: 16px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url('bg.png') center center / cover no-repeat;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
 
-  header .left { display: flex; align-items: center; gap: 16px; }
+.main, header, .shortcuts-bar, .help-bubble { position: relative; z-index: 1; }
 
-  .logo {
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    opacity: 0.4;
-    padding-right: 16px;
-    border-right: 1px solid rgba(255,255,255,0.12);
-  }
+/* ── HEADER ── */
+header {
+  background: #000;
+  color: white;
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  align-items: center;
+  padding: 0 24px;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  gap: 16px;
+}
 
-  header h1 { font-size: 14px; font-weight: 500; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-logo { height: 28px; width: auto; }
+.header-title { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: white; }
 
-  .sync-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.35);
-  }
+.header-search { position: relative; }
+.header-search input {
+  width: 100%;
+  padding: 9px 14px 9px 38px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: white;
+  font-family: var(--sans);
+  font-size: 13px;
+  outline: none;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: center;
+}
+.header-search input:focus { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.35); }
+.header-search input::placeholder { color: rgba(255,255,255,0.4); }
+.header-search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); pointer-events: none; }
 
-  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #aaa; flex-shrink: 0; }
-  .sync-dot.loading { background: #f0c040; animation: pulse 1s infinite; }
-  .sync-dot.ok  { background: #5cb87a; }
-  .sync-dot.err { background: #e05555; }
+.header-right { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #aaa; flex-shrink: 0; }
+.sync-dot.loading { background: #f0c040; animation: pulse 1s infinite; }
+.sync-dot.ok  { background: #4caf7d; }
+.sync-dot.err { background: #e05555; }
+.sync-label { font-size: 10px; font-family: var(--mono); color: white; letter-spacing: 0.05em; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+/* ── SEARCH DROPDOWN ── */
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 300;
+}
+.search-dropdown.open { display: block; }
+.result-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  gap: 12px;
+  color: var(--text);
+}
+.result-item:last-child { border-bottom: none; }
+.result-item:hover { background: var(--light); }
+.result-name { font-weight: 600; font-size: 13px; }
+.result-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.result-tag  { font-size: 10px; font-family: var(--mono); padding: 2px 8px; border-radius: 3px; background: var(--light); color: var(--muted); border: 1px solid var(--border); white-space: nowrap; }
+.no-results  { padding: 14px 16px; color: var(--muted); font-size: 13px; }
 
-  /* MAIN */
-  .main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+/* ── SHORTCUTS ── */
+.shortcuts-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.shortcut-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.shortcut-btn:hover { border-color: #000; background: var(--light); }
+.shortcuts-label { font-size: 10px; font-family: var(--mono); color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-right: 4px; }
 
-  /* LOADER */
-  .loader {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 80px 32px; gap: 16px; color: var(--muted);
-  }
-  .spinner {
-    width: 26px; height: 26px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent2);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loader p { font-size: 13px; }
+/* ── HELP BUBBLE ── */
+.help-bubble { position: fixed; bottom: 28px; right: 28px; z-index: 999; }
+.help-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: #000; color: white; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25); font-size: 20px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.help-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+.help-popup {
+  position: absolute; bottom: 60px; right: 0; width: 280px;
+  background: white; border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 18px; box-shadow: 0 8px 28px rgba(0,0,0,0.13);
+  display: none; animation: fadeUp 0.18s ease;
+}
+.help-popup.open { display: block; }
+.help-popup-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.help-popup p { font-size: 12px; color: var(--muted); line-height: 1.65; }
 
-  /* ERROR */
-  .err-state {
-    background: var(--surface); border: 1.5px solid var(--inactive-bg);
-    border-radius: 10px; padding: 32px; text-align: center; display: none;
-  }
-  .err-state h2 { font-size: 15px; font-weight: 500; margin-bottom: 8px; color: var(--inactive-text); }
-  .err-state p  { font-size: 12px; color: var(--muted); line-height: 1.7; }
+/* ── MAIN ── */
+.main { max-width: 900px; margin: 0 auto; padding: 28px 24px 80px; }
 
-  /* SEARCH */
-  .search-section { display: none; margin-bottom: 20px; }
-  .search-section.visible { display: block; animation: fadeUp 0.2s ease; }
+/* ── LOADER ── */
+.loader { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 32px; gap: 16px; color: var(--muted); }
+.spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: #000; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  .search-meta {
-    display: flex; align-items: baseline;
-    justify-content: space-between; margin-bottom: 10px;
-  }
+/* ── ERROR ── */
+.err-state { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 32px; text-align: center; display: none; }
+.err-state h2 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.err-state p  { font-size: 12px; color: var(--muted); line-height: 1.7; }
 
-  .search-label {
-    font-family: var(--mono); font-size: 10px;
-    letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
-  }
+/* ── TABS ── */
+.tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.tab {
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s;
+  user-select: none;
+}
+.tab.active { color: var(--text); border-bottom-color: #000; }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeUp 0.2s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
 
-  .vendor-count { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.coming-soon {
+  text-align: center;
+  padding: 80px 32px;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.coming-soon h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+.coming-soon p  { font-size: 13px; }
 
-  .search-wrap { position: relative; }
+/* ── FICHE ── */
+.fiche { display: none; }
+.fiche.visible { display: block; animation: fadeUp 0.2s ease; }
 
-  .search-wrap svg {
-    position: absolute; left: 14px; top: 50%;
-    transform: translateY(-50%); color: var(--muted); pointer-events: none;
-  }
+.fiche-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
-  #zoek {
-    width: 100%; padding: 13px 13px 13px 44px;
-    font-family: var(--sans); font-size: 15px;
-    border: 1.5px solid var(--border); border-radius: 8px;
-    background: var(--surface); color: var(--text);
-    outline: none; transition: border-color 0.15s;
-  }
-  #zoek:focus { border-color: var(--accent2); }
-  #zoek::placeholder { color: var(--muted); }
+.fiche-header {
+  background: #000;
+  border-radius: 8px 8px 0 0;
+  padding: 22px 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.fh-left { flex: 1; min-width: 0; }
+.vendor-eye { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 4px; }
+.vendor-name { font-size: 20px; font-weight: 700; color: white; letter-spacing: -0.01em; }
+.fh-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.fh-tag {
+  font-size: 11px; font-family: var(--mono);
+  padding: 3px 10px; border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+}
+.fh-tag.s-active   { background: var(--green-bg); color: var(--green); border-color: transparent; }
+.fh-tag.s-inactive { background: var(--red-bg);   color: var(--red);   border-color: transparent; }
 
-  .results-list {
-    background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 8px; margin-top: 6px; overflow: hidden; display: none;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-  }
-  .results-list.open { display: block; }
+/* Sections */
+.fiche-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; background: white; }
 
-  .result-item {
-    padding: 11px 16px; cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid var(--border); transition: background 0.1s;
-    gap: 12px;
-  }
-  .result-item:last-child { border-bottom: none; }
-  .result-item:hover, .result-item.sel { background: var(--tag-bg); }
+.section-hdr {
+  padding: 7px 20px;
+  background: var(--light);
+  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.section-hdr:first-child { border-top: none; }
+.section-hdr span { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
 
-  .result-left { display: flex; flex-direction: column; gap: 2px; }
-  .result-name { font-weight: 500; font-size: 14px; }
-  .result-sub  { font-size: 11px; color: var(--muted); }
-  .result-right { display: flex; gap: 6px; flex-shrink: 0; }
+.field-row {
+  display: grid;
+  grid-template-columns: 190px 1fr auto;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  transition: background 0.08s;
+}
+.field-row:last-child { border-bottom: none; }
+.field-row:hover { background: var(--surface); }
+.field-key { font-size: 12px; color: var(--muted); font-weight: 400; }
+.field-val { font-size: 13px; color: var(--text); font-weight: 500; word-break: break-word; }
+.field-val.mono { font-family: var(--mono); font-size: 12px; font-weight: 400; }
+.field-val.empty { color: #ccc; font-weight: 400; }
+.field-val a { color: var(--blue); text-decoration: none; }
+.field-val a:hover { text-decoration: underline; }
+.bool-yes { color: var(--green); font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.bool-no  { color: var(--muted); font-family: var(--mono); font-size: 12px; }
 
-  .result-tag {
-    font-size: 10px; font-family: var(--mono);
-    padding: 2px 8px; border-radius: 999px;
-    background: var(--tag-bg); color: var(--tag-text);
-    white-space: nowrap;
-  }
+/* Copy & Export buttons */
+.copy-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 10px; font-family: var(--mono);
+  color: var(--muted); cursor: pointer;
+  transition: all 0.12s; white-space: nowrap; flex-shrink: 0;
+}
+.copy-btn:hover { border-color: #000; color: #000; background: var(--light); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); background: var(--green-bg); }
 
-  .no-results { padding: 14px 16px; color: var(--muted); font-size: 13px; }
+.export-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 500;
+  color: var(--text); cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.export-btn:hover { border-color: #000; background: var(--light); }
 
-  /* FICHE */
-  .fiche { display: none; margin-top: 8px; }
-  .fiche.visible { display: block; animation: fadeUp 0.25s ease; }
+/* vendor-count */
+.vendor-count { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 
-  @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-
-  /* Fiche header */
-  .fiche-header {
-    background: var(--accent);
-    border-radius: 10px 10px 0 0;
-    padding: 24px 28px;
-    display: flex; align-items: flex-start;
-    justify-content: space-between; gap: 16px;
-  }
-
-  .fh-left { flex: 1; min-width: 0; }
-  .vendor-eyebrow { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 5px; }
-  .vendor-name { font-size: 22px; font-weight: 600; color: white; letter-spacing: -0.01em; margin-bottom: 4px; }
-
-  .fh-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-
-  .fh-tag {
-    font-size: 11px; font-family: var(--mono);
-    padding: 3px 10px; border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.55);
-    white-space: nowrap;
-  }
-
-  .fh-tag.status-actief   { background: var(--active-bg);  color: var(--active-text);   border-color: transparent; }
-  .fh-tag.status-inactief { background: var(--inactive-bg); color: var(--inactive-text); border-color: transparent; }
-
-  /* Sections */
-  .fiche-body {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-top: none;
-    border-radius: 0 0 10px 10px;
-    overflow: hidden;
-  }
-
-  .section-header {
-    padding: 8px 20px 7px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    border-top: 1px solid var(--border);
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  .section-header:first-child { border-top: none; }
-
-  .section-label {
-    font-family: var(--mono); font-size: 9px;
-    letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted);
-  }
-
-  /* Field rows */
-  .field-row {
-    display: grid;
-    grid-template-columns: 180px 1fr auto;
-    align-items: center;
-    padding: 11px 20px;
-    border-bottom: 1px solid var(--border);
-    gap: 12px;
-    transition: background 0.1s;
-  }
-  .field-row:last-child { border-bottom: none; }
-  .field-row:hover { background: #FAFAF8; }
-
-  .field-key { font-size: 12px; color: var(--muted); font-weight: 400; }
-
-  .field-val { font-size: 13px; color: var(--text); font-weight: 500; word-break: break-word; }
-  .field-val.mono { font-family: var(--mono); font-size: 12px; font-weight: 400; letter-spacing: 0.02em; }
-  .field-val.empty { color: var(--muted); font-weight: 400; }
-  .field-val a { color: var(--accent2); text-decoration: none; }
-  .field-val a:hover { text-decoration: underline; }
-
-  .bool-yes { color: var(--active-text); font-family: var(--mono); font-size: 12px; }
-  .bool-no  { color: var(--muted);       font-family: var(--mono); font-size: 12px; }
-
-  /* Copy button */
-  .copy-btn {
-    display: flex; align-items: center; gap: 4px;
-    padding: 4px 9px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 10px; font-family: var(--mono);
-    color: var(--muted); cursor: pointer;
-    transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
-  }
-  .copy-btn:hover { border-color: var(--accent2); color: var(--accent2); background: var(--tag-bg); }
-  .copy-btn.copied { border-color: var(--active-text); color: var(--active-text); background: var(--active-bg); }
-
-  @media (max-width: 600px) {
-    header { padding: 12px 16px; }
-    .main  { padding: 20px 12px 60px; }
-    .field-row { grid-template-columns: 130px 1fr auto; }
-    .fiche-header { padding: 18px; }
-  }
+@media (max-width: 640px) {
+  header { grid-template-columns: auto 1fr auto; }
+  .header-title { display: none; }
+  .main { padding: 16px 12px 60px; }
+  .field-row { grid-template-columns: 120px 1fr auto; }
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="left">
-    <span class="logo">VendorDB</span>
-    <h1>Leveranciersfiche</h1>
+  <div class="header-left">
+    <img class="header-logo" id="logoImg" alt="ACSW" />
+    <span class="header-title">Vendorwall</span>
   </div>
-  <div class="sync-status">
+
+  <div class="header-search">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="zoek" placeholder="Zoek vendor op naam…" autocomplete="off" />
+    <div class="search-dropdown" id="searchDropdown"></div>
+  </div>
+
+  <div class="header-right">
     <div class="sync-dot loading" id="syncDot"></div>
-    <span id="syncLabel">laden…</span>
+    <span class="sync-label" id="syncLabel">laden…</span>
   </div>
 </header>
+
+<!-- SHORTCUTS -->
+<div class="shortcuts-bar">
+  <span class="shortcuts-label">Quick links</span>
+  <a class="shortcut-btn" href="#" id="sc1" target="_blank">Shortcut 1</a>
+  <a class="shortcut-btn" href="#" id="sc2" target="_blank">Shortcut 2</a>
+  <a class="shortcut-btn" href="#" id="sc3" target="_blank">Shortcut 3</a>
+  <a class="shortcut-btn" href="#" id="sc4" target="_blank">Shortcut 4</a>
+  <a class="shortcut-btn" href="#" id="sc5" target="_blank">Shortcut 5</a>
+</div>
+
+<!-- HELP BUBBLE -->
+<div class="help-bubble">
+  <div class="help-popup" id="helpPopup">
+    <div class="help-popup-title">Hulp nodig?</div>
+    <p>Als je vragen hebt of problemen ondervindt met deze interface, kan je contact opnemen met <strong style="color:var(--text);">Henri Bruyneel</strong> via Teams.</p>
+  </div>
+  <button class="help-btn" onclick="document.getElementById('helpPopup').classList.toggle('open')" title="Help">?</button>
+</div>
 
 <div class="main">
 
   <div class="loader" id="loader">
     <div class="spinner"></div>
-    <p>Vendordata ophalen…</p>
+    <p style="font-size:13px;color:var(--muted);">Vendordata ophalen…</p>
   </div>
 
   <div class="err-state" id="errState">
-    <h2>Kon data niet ophalen</h2>
-    <p>Controleer of de Google Sheet gepubliceerd is op internet.<br>(Bestand → Delen → Publiceren op internet → CSV)</p>
+    <h2>Fout met laden vendordata</h2>
+    <p>Neem a.u.b. contact op met Henri.</p>
   </div>
 
-  <div class="search-section" id="searchSection">
-    <div class="search-meta">
-      <span class="search-label">Zoek vendor</span>
-      <span class="vendor-count" id="vendorCount"></span>
+  <!-- TABS -->
+  <div id="mainContent" style="display:none;">
+    <div class="tabs">
+      <div class="tab active" data-tab="passport">Vendor Passport</div>
+      <div class="tab" data-tab="portfolio">Vendor Portfolio</div>
     </div>
-    <div class="search-wrap">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="text" id="zoek" placeholder="Typ bedrijfsnaam…" autocomplete="off" />
-    </div>
-    <div class="results-list" id="resultsList"></div>
-  </div>
 
-  <div class="fiche" id="fiche">
-    <div id="ficheWrap"></div>
+    <div class="tab-content active" id="tab-passport">
+      <div class="fiche" id="fiche">
+        <div class="fiche-topbar">
+          <span class="vendor-count" id="vendorCount"></span>
+          <button class="export-btn" onclick="exportTSV()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export voor Excel
+          </button>
+        </div>
+        <div id="ficheWrap"></div>
+      </div>
+      <div id="emptyState" style="text-align:center;padding:64px 32px;color:var(--muted);">
+        <p style="font-size:13px;">Zoek een vendor via de zoekbalk bovenaan.</p>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-portfolio">
+      <div class="coming-soon">
+        <h3>Vendor Portfolio</h3>
+        <p>Coming soon — overzicht & analytics van het volledige leveranciersportfolio.</p>
+      </div>
+    </div>
   </div>
 
 </div>
 
 <script>
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQYxFJ-AZ6u8FZaGNTV-OFbXZj_OQL2GH8BYXiwSQ6w4euTnmMIiPS-i9w7wlqESnqtHVSYfrdl1_1r/pub?gid=712742950&single=true&output=csv';
-
-// ── SECTIE DEFINITIES ──────────────────────────────────────────────────────
-// Volgorde bepaalt weergave. Regex matcht op kolomnaam (case-insensitive).
-// Nieuwe kolommen die nergens matchen → automatisch in "Overige".
-const SECTIONS = [
-  {
-    label: 'Contact',
-    match: /primary.contact|contact.email|order.email|support.email|escalation/i
-  },
-  {
-    label: 'Commercieel',
-    match: /agreement|ordering.method|discount|payment.term|pricing.freedom|auto.renewal|termination|deal.reg|nfr|sub.reseller|price.change|margin|erp.code|invoicing|business.case|pricing.model/i
-  },
-  {
-    label: 'Compliance & Security',
-    match: /gdpr|soc.?2|iso.?27001|data.residency|eu.ai.act|cra|trust.center|dpa|privacy.policy/i
-  },
-  {
-    label: 'Product & Technologie',
-    match: /platform|deployment|sso|mfa|sku|license.type|user.type|user.group|os.support/i
-  },
-  {
-    label: 'Partnership & Verlenging',
-    match: /renewal|price.at.renewal|next.review|partnership|website|partner.portal/i
-  },
-];
-
-// Kolommen die in de header getoond worden (niet als field row)
-const HEADER_KEYS = /^vendor$|^status$|^category$|^country$|^vendor.type$/i;
-
-// Zoekkolom
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQYxFJ-AZ6u8FZaGNTV-OFbXZj_OQL2GH8BYXiwSQ6w4euTnmMIiPS-i9w7wlqESnqtHVSYfrdl1_1r/pub?gid=1614611974&single=true&output=csv';
 const NAME_KEY = 'Vendor';
 
-let vendors = [];
-let headers = [];
-let selectedIndex = -1;
+// ── LOGO EMBED ─────────────────────────────────────────────────────────────
+document.getElementById('logoImg').src = 'logo.png';
 
-// ── LADEN ─────────────────────────────────────────────────────────────────
+// ── SHORTCUTS (aanpasbaar) ────────────────────────────────────────────────
+const SHORTCUTS = [
+  { label: 'Shortcut 1', url: '#' },
+  { label: 'Shortcut 2', url: '#' },
+  { label: 'Shortcut 3', url: '#' },
+  { label: 'Shortcut 4', url: '#' },
+  { label: 'Shortcut 5', url: '#' },
+];
+SHORTCUTS.forEach((s, i) => {
+  const el = document.getElementById('sc' + (i+1));
+  if (el) { el.href = s.url; el.textContent = s.label; }
+});
+
+// ── SECTIE DEFINITIES (vaste structuur + auto-append) ─────────────────────
+const SECTIONS = [
+  { label: 'Company Information',  match: /^(status|category|country|vendor.?type)$/i },
+  { label: 'Contact',              match: /primary.contact|contact.email|order.email|support.email|escalation/i },
+  { label: 'Commercial',           match: /agreement|ordering.method|discount|payment.term|pricing.freedom|auto.renewal|termination|deal.reg|nfr|sub.reseller|price.change|margin|erp.code|invoicing|business.case|pricing.model/i },
+  { label: 'Banking Information',  match: /iban|bank|payment.detail|bic|swift/i },
+  { label: 'Compliance & Security',match: /gdpr|soc.?2|iso.?27001|data.residency|eu.ai.act|^cra$|trust.center|dpa|privacy.policy/i },
+  { label: 'Product & Technology', match: /platform|deployment|sso|mfa|#?sku|license.type|user.type|user.group|os.support/i },
+  { label: 'Partnership & Renewal',match: /renewal|price.at.renewal|next.review|partnership|website|partner.portal/i },
+];
+const HEADER_COLS = /^(vendor|status|category|country|vendor.?type)$/i;
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let vendors = [], headers = [], currentVendor = null, selectedIndex = -1;
+
+// ── DATA LADEN ────────────────────────────────────────────────────────────
 async function laadData() {
   setSync('loading', 'laden…');
-  show('loader'); hide('errState');
-  document.getElementById('searchSection').classList.remove('visible');
-  document.getElementById('fiche').classList.remove('visible');
+  document.getElementById('loader').style.display = 'flex';
+  document.getElementById('errState').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'none';
 
   try {
     const res = await fetch(SHEET_URL);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
     parseCSV(text);
-    hide('loader');
-    document.getElementById('searchSection').classList.add('visible');
-    document.getElementById('vendorCount').textContent = vendors.length + ' vendors';
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    document.getElementById('vendorCount').textContent = vendors.length + ' vendors geladen';
     setSync('ok', 'gesynchroniseerd');
-    document.getElementById('zoek').focus();
   } catch(e) {
-    hide('loader');
-    show('errState');
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('errState').style.display = 'block';
     setSync('err', 'fout bij laden');
   }
 }
 
-function show(id) { document.getElementById(id).style.display = ''; }
-function hide(id) { document.getElementById(id).style.display = 'none'; }
-
-function setSync(state, label) {
-  document.getElementById('syncDot').className = 'sync-dot ' + state;
-  document.getElementById('syncLabel').textContent = label;
+function setSync(s, l) {
+  document.getElementById('syncDot').className = 'sync-dot ' + s;
+  document.getElementById('syncLabel').textContent = l;
 }
 
 function parseCSV(text) {
   const lines = text.trim().split('\n').filter(l => l.trim());
-  // Auto-detect separator
-  const firstLine = lines[0];
-  const sep = (firstLine.split(';').length > firstLine.split(',').length) ? ';' : ',';
-  headers = firstLine.split(sep).map(h => h.trim().replace(/\r/g, ''));
+  const first = lines[0];
+  const sep = first.split(';').length > first.split(',').length ? ';' : ',';
+  headers = first.split(sep).map(h => h.trim().replace(/\r/g,'').replace(/^"|"$/g,''));
   vendors = lines.slice(1).map(line => {
-    // Handle quoted CSV values
     const vals = parseCSVLine(line, sep);
     const obj = {};
-    headers.forEach((h, i) => obj[h] = (vals[i] || '').trim().replace(/\r/g, ''));
+    headers.forEach((h,i) => obj[h] = (vals[i]||'').trim().replace(/\r/g,'').replace(/^"|"$/g,''));
     return obj;
   }).filter(v => v[NAME_KEY] && v[NAME_KEY].trim());
 }
 
 function parseCSVLine(line, sep) {
-  const result = [];
-  let cur = '', inQuote = false;
+  const res = []; let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
-    if (c === '"') { inQuote = !inQuote; }
-    else if (c === sep && !inQuote) { result.push(cur); cur = ''; }
-    else { cur += c; }
+    if (c === '"') { inQ = !inQ; }
+    else if (c === sep && !inQ) { res.push(cur); cur = ''; }
+    else cur += c;
   }
-  result.push(cur);
-  return result;
+  res.push(cur);
+  return res;
 }
 
 // ── ZOEKEN ────────────────────────────────────────────────────────────────
-const zoekEl  = document.getElementById('zoek');
-const lijstEl = document.getElementById('resultsList');
+const zoekEl = document.getElementById('zoek');
+const dropEl = document.getElementById('searchDropdown');
 
 zoekEl.addEventListener('input', () => {
   const q = zoekEl.value.trim().toLowerCase();
   selectedIndex = -1;
-  if (!q) { lijstEl.classList.remove('open'); return; }
+  if (!q) { dropEl.classList.remove('open'); return; }
 
-  const hits = vendors.filter(v => (v[NAME_KEY] || '').toLowerCase().includes(q));
-
+  const hits = vendors.filter(v => (v[NAME_KEY]||'').toLowerCase().includes(q));
   if (!hits.length) {
-    lijstEl.innerHTML = '<div class="no-results">Geen vendors gevonden</div>';
-    lijstEl.classList.add('open');
-    return;
+    dropEl.innerHTML = '<div class="no-results">Geen vendors gevonden</div>';
+    dropEl.classList.add('open'); return;
   }
 
-  lijstEl.innerHTML = hits.slice(0, 15).map(v => {
-    const status = v['Status'] || '';
-    const cat    = v['Category'] || '';
-    const country= v['Country'] || '';
-    return `
-      <div class="result-item" data-vendor="${esc(v[NAME_KEY])}">
-        <div class="result-left">
-          <span class="result-name">${hl(v[NAME_KEY], q)}</span>
-          <span class="result-sub">${[cat, country].filter(Boolean).join(' · ')}</span>
-        </div>
-        <div class="result-right">
-          ${status ? `<span class="result-tag">${status}</span>` : ''}
-        </div>
-      </div>`;
-  }).join('');
+  const catK = headers.find(h => /^category$/i.test(h)) || '';
+  const stK  = headers.find(h => /^status$/i.test(h)) || '';
 
-  lijstEl.querySelectorAll('.result-item').forEach(el => {
-    el.addEventListener('click', () => kiesVendor(el.dataset.vendor));
+  dropEl.innerHTML = hits.slice(0,15).map(v => `
+    <div class="result-item" data-name="${esc(v[NAME_KEY])}">
+      <div>
+        <div class="result-name">${hl(v[NAME_KEY], q)}</div>
+        <div class="result-sub">${v[catK]||''}</div>
+      </div>
+      ${v[stK] ? `<span class="result-tag">${v[stK]}</span>` : ''}
+    </div>`).join('');
+
+  dropEl.querySelectorAll('.result-item').forEach(el => {
+    el.addEventListener('click', () => kiesVendor(el.dataset.name));
   });
-
-  lijstEl.classList.add('open');
+  dropEl.classList.add('open');
 });
 
 zoekEl.addEventListener('keydown', e => {
-  const items = lijstEl.querySelectorAll('.result-item');
+  const items = dropEl.querySelectorAll('.result-item');
   if (!items.length) return;
-  if (e.key === 'ArrowDown')  { e.preventDefault(); selectedIndex = Math.min(selectedIndex + 1, items.length - 1); updSel(items); }
-  else if (e.key === 'ArrowUp')   { e.preventDefault(); selectedIndex = Math.max(selectedIndex - 1, 0); updSel(items); }
+  if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = Math.min(selectedIndex+1, items.length-1); updSel(items); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = Math.max(selectedIndex-1, 0); updSel(items); }
   else if (e.key === 'Enter' && selectedIndex >= 0) items[selectedIndex].click();
-  else if (e.key === 'Escape') lijstEl.classList.remove('open');
+  else if (e.key === 'Escape') dropEl.classList.remove('open');
 });
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('#zoek') && !e.target.closest('#resultsList')) lijstEl.classList.remove('open');
+  if (!e.target.closest('.header-search')) dropEl.classList.remove('open');
+  if (!e.target.closest('.help-bubble')) document.getElementById('helpPopup').classList.remove('open');
 });
 
-function updSel(items) { items.forEach((el, i) => el.classList.toggle('sel', i === selectedIndex)); }
-function hl(text, q) {
-  const idx = text.toLowerCase().indexOf(q);
-  if (idx === -1) return text;
-  return text.slice(0, idx) + '<strong>' + text.slice(idx, idx + q.length) + '</strong>' + text.slice(idx + q.length);
+function updSel(items) { items.forEach((el,i) => el.classList.toggle('sel', i===selectedIndex)); }
+function hl(t, q) {
+  const i = t.toLowerCase().indexOf(q);
+  if (i === -1) return t;
+  return t.slice(0,i) + '<strong>' + t.slice(i,i+q.length) + '</strong>' + t.slice(i+q.length);
 }
-function esc(s) { return (s || '').replace(/"/g, '&quot;'); }
+function esc(s) { return (s||'').replace(/"/g,'&quot;'); }
 
 // ── VENDOR KIEZEN ─────────────────────────────────────────────────────────
 function kiesVendor(name) {
   const v = vendors.find(x => x[NAME_KEY] === name);
   if (!v) return;
-  lijstEl.classList.remove('open');
+  dropEl.classList.remove('open');
   zoekEl.value = '';
+  currentVendor = v;
   toonFiche(v);
+  // Zorg dat tab Passport actief is
+  setTab('passport');
   document.getElementById('fiche').classList.add('visible');
+  document.getElementById('emptyState').style.display = 'none';
   document.getElementById('fiche').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── FICHE RENDEREN ────────────────────────────────────────────────────────
 function toonFiche(v) {
-  const status  = v['Status']   || '';
+  const status  = v['Status'] || '';
   const cat     = v['Category'] || '';
-  const country = v['Country']  || '';
+  const country = v['Country'] || '';
   const type    = v['Vendor Type'] || '';
 
-  // Header tags
-  const statusClass = status.toLowerCase() === 'actief' ? 'status-actief'
-                    : status.toLowerCase() === 'inactief' ? 'status-inactief' : '';
-  const headerTags = [
-    status  ? `<span class="fh-tag ${statusClass}">${status}</span>` : '',
+  const stClass = /actief|active/i.test(status) ? 's-active' : /inactief|inactive/i.test(status) ? 's-inactive' : '';
+
+  const tags = [
+    status  ? `<span class="fh-tag ${stClass}">${status}</span>` : '',
     cat     ? `<span class="fh-tag">${cat}</span>` : '',
     country ? `<span class="fh-tag">${country}</span>` : '',
     type    ? `<span class="fh-tag">${type}</span>` : '',
   ].filter(Boolean).join('');
 
-  // Bepaal welke kolommen in de header zitten (niet als rij tonen)
-  const headerCols = new Set(headers.filter(h => HEADER_KEYS.test(h)));
-
-  // Wijs elke kolom toe aan een sectie
-  const sectionBuckets = SECTIONS.map(s => ({ label: s.label, keys: [] }));
-  const overige = { label: 'Overige', keys: [] };
+  // Bucket kolommen
+  const headerSet = new Set(headers.filter(h => HEADER_COLS.test(h)));
+  const buckets = SECTIONS.map(s => ({ label: s.label, keys: [] }));
+  const extra = { label: 'Extra', keys: [] };
 
   headers.forEach(h => {
-    if (h === NAME_KEY || headerCols.has(h)) return; // al in header
+    if (h === NAME_KEY || headerSet.has(h)) return;
     const idx = SECTIONS.findIndex(s => s.match.test(h));
-    if (idx >= 0) sectionBuckets[idx].keys.push(h);
-    else overige.keys.push(h);
+    if (idx >= 0) buckets[idx].keys.push(h);
+    else extra.keys.push(h);
   });
 
-  // Render alle secties
-  const allSections = [...sectionBuckets, overige].filter(s => s.keys.length > 0);
+  const allSections = [...buckets, extra].filter(s => s.keys.length > 0);
   const sectionsHTML = allSections.map(s => renderSection(s.label, s.keys, v)).join('');
 
   document.getElementById('ficheWrap').innerHTML = `
     <div class="fiche-header">
       <div class="fh-left">
-        <div class="vendor-eyebrow">vendor</div>
+        <div class="vendor-eye">vendor passport</div>
         <div class="vendor-name">${v[NAME_KEY] || '—'}</div>
-        <div class="fh-tags">${headerTags}</div>
+        <div class="fh-tags">${tags}</div>
       </div>
     </div>
     <div class="fiche-body">${sectionsHTML}</div>
@@ -528,66 +604,88 @@ function toonFiche(v) {
 }
 
 function renderSection(label, keys, v) {
-  const rows = keys.map(k => renderRow(k, v[k])).join('');
-  return `
-    <div class="section-header"><span class="section-label">${label}</span></div>
-    ${rows}
-  `;
+  return `<div class="section-hdr"><span>${label}</span></div>${keys.map(k => renderRow(k, v[k])).join('')}`;
 }
 
 function renderRow(key, rawVal) {
   const val = (rawVal || '').trim();
-  const isEmpty = !val;
-  let displayHTML = '';
+  const empty = !val;
+  let html = '';
 
-  if (isEmpty) {
-    displayHTML = `<span class="field-val empty">—</span>`;
+  if (empty) {
+    html = `<span class="field-val empty">—</span>`;
   } else if (isURL(val)) {
-    const short = val.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
-    displayHTML = `<span class="field-val"><a href="${val}" target="_blank" rel="noopener">${short}</a></span>`;
-  } else if (isEmail(key)) {
-    displayHTML = `<span class="field-val"><a href="mailto:${val}">${val}</a></span>`;
-  } else if (isBoolean(val)) {
+    const short = val.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'').slice(0,50);
+    html = `<span class="field-val"><a href="${val}" target="_blank" rel="noopener">${short}</a></span>`;
+  } else if (isEmailKey(key)) {
+    html = `<span class="field-val"><a href="mailto:${val}">${val}</a></span>`;
+  } else if (isBool(val)) {
     const yes = /^(yes|ja|true|✓|x)$/i.test(val);
-    displayHTML = `<span class="field-val ${yes ? 'bool-yes' : 'bool-no'}">${yes ? '✓ ' + val : '✗ ' + val}</span>`;
-  } else if (isMonoField(key)) {
-    displayHTML = `<span class="field-val mono">${val}</span>`;
+    html = `<span class="${yes?'bool-yes':'bool-no'}">${yes?'✓':'✗'} ${val}</span>`;
+  } else if (isMonoKey(key)) {
+    html = `<span class="field-val mono">${val}</span>`;
   } else {
-    displayHTML = `<span class="field-val">${val}</span>`;
+    html = `<span class="field-val">${val}</span>`;
   }
 
-  const copyable = !isEmpty && !isURL(val);
+  const copyable = !empty && !isURL(val);
   const copyBtn = copyable
     ? `<button class="copy-btn" onclick="kopieer(this,${JSON.stringify(val)})">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         kopieer</button>`
     : `<span></span>`;
 
-  return `
-    <div class="field-row">
-      <span class="field-key">${key}</span>
-      ${displayHTML}
-      ${copyBtn}
-    </div>`;
+  return `<div class="field-row"><span class="field-key">${key}</span>${html}${copyBtn}</div>`;
 }
 
-// ── HELPERS ───────────────────────────────────────────────────────────────
-function isURL(v)         { return /^https?:\/\//i.test(v); }
-function isEmail(key)     { return /email|mail/i.test(key); }
-function isBoolean(v)     { return /^(yes|no|ja|nee|true|false|✓|✗|x)$/i.test(v); }
-function isMonoField(key) { return /erp.code|iban|discount|margin|sku/i.test(key); }
+function isURL(v)      { return /^https?:\/\//i.test(v); }
+function isEmailKey(k) { return /email|mail/i.test(k); }
+function isBool(v)     { return /^(yes|no|ja|nee|true|false|✓|✗|x)$/i.test(v); }
+function isMonoKey(k)  { return /erp.?code|iban|discount|margin|#?sku|bic|swift/i.test(k); }
 
 // ── COPY ──────────────────────────────────────────────────────────────────
 function kopieer(btn, val) {
   if (!val) return;
-  navigator.clipboard.writeText(val).then(() => {
+  const done = () => {
     btn.classList.add('copied');
-    btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 12 4 10"/></svg> gekopieerd`;
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> kopieer`;
-    }, 2000);
-  });
+    btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 12 4 10"/></svg> gekopieerd`;
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> kopieer`; }, 2000);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(val).then(done).catch(() => fallback(val, done));
+  } else fallback(val, done);
+}
+function fallback(val, cb) {
+  const t = document.createElement('textarea');
+  t.value = val; t.style.cssText = 'position:fixed;opacity:0;';
+  document.body.appendChild(t); t.focus(); t.select();
+  try { document.execCommand('copy'); cb(); } catch(e) {}
+  document.body.removeChild(t);
+}
+
+// ── EXPORT TSV ────────────────────────────────────────────────────────────
+function exportTSV() {
+  if (!currentVendor) return;
+  const v = currentVendor;
+  const rows = [['Veld', 'Waarde']];
+  headers.forEach(h => { if (v[h] !== undefined) rows.push([h, v[h] || '']); });
+  const tsv = rows.map(r => r.map(c => c.replace(/\t/g,' ')).join('\t')).join('\n');
+  const blob = new Blob([tsv], { type: 'text/tab-separated-values' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (v[NAME_KEY] || 'vendor').replace(/[^a-zA-Z0-9]/g,'_') + '.tsv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => setTab(tab.dataset.tab));
+});
+
+function setTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + name));
 }
 
 // ── START ─────────────────────────────────────────────────────────────────
