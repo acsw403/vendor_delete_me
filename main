@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vendor Passport</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–bg:            #F5F3EE;
+–surface:       #FFFFFF;
+–border:        #E0DDD6;
+–border-d:      #EAE8E2;
+–accent:        #1A1A2E;
+–accent2:       #4A4E8C;
+–muted:         #8A8880;
+–text:          #1C1C1C;
+–tag-bg:        #EEEDF8;
+–tag-text:      #3C3489;
+–active-bg:     #EAF5EE;
+–active-text:   #2A6B3C;
+–inactive-bg:   #F5EEEE;
+–inactive-text: #8B3A3A;
+–mono: ‘DM Mono’, monospace;
+–sans: ‘DM Sans’, sans-serif;
+}
+
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(–sans); background: var(–bg); color: var(–text); display: flex; flex-direction: column; }
+
+/* ── HEADER ── */
+header {
+background: var(–accent); color: white;
+padding: 0 24px; height: 52px;
+display: flex; align-items: center; justify-content: space-between;
+flex-shrink: 0; position: sticky; top: 0; z-index: 100;
+}
+.h-left { display: flex; align-items: center; gap: 16px; }
+.logo { font-family: var(–mono); font-size: 10px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase; opacity: .4; padding-right: 16px; border-right: 1px solid rgba(255,255,255,.12); }
+header h1 { font-size: 14px; font-weight: 500; }
+.sync-status { display: flex; align-items: center; gap: 6px; font-family: var(–mono); font-size: 10px; letter-spacing: .06em; color: rgba(255,255,255,.35); }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #aaa; flex-shrink: 0; }
+.sync-dot.loading { background: #f0c040; animation: pulse 1s infinite; }
+.sync-dot.ok { background: #5cb87a; }
+.sync-dot.err { background: #e05555; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── LAYOUT ── */
+.body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+width: 292px; flex-shrink: 0;
+background: var(–bg); border-right: 1.5px solid var(–border);
+display: flex; flex-direction: column; overflow: hidden;
+}
+.sb-top { padding: 16px 16px 12px; border-bottom: 1px solid var(–border-d); }
+.search-meta { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.search-label { font-family: var(–mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(–muted); }
+.vendor-count { font-family: var(–mono); font-size: 9px; color: var(–muted); }
+.sw { position: relative; }
+.sw svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(–muted); pointer-events: none; }
+#zoek {
+width: 100%; padding: 11px 12px 11px 40px;
+font-family: var(–sans); font-size: 14px;
+border: 1.5px solid var(–border); border-radius: 7px;
+background: var(–surface); color: var(–text);
+outline: none; transition: border-color .15s;
+}
+#zoek:focus { border-color: var(–accent2); }
+#zoek::placeholder { color: var(–muted); }
+
+.sb-loader { display: flex; align-items: center; gap: 10px; padding: 16px; font-family: var(–mono); font-size: 10px; color: var(–muted); }
+.spinner { width: 16px; height: 16px; border: 2px solid var(–border); border-top-color: var(–accent2); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sb-err { display: none; padding: 14px 16px; font-family: var(–mono); font-size: 10px; color: var(–inactive-text); line-height: 1.6; }
+
+.results-list { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(–border) transparent; }
+.result-item {
+padding: 10px 16px; cursor: pointer;
+border-bottom: 1px solid var(–border-d);
+display: flex; align-items: center; justify-content: space-between;
+gap: 10px; transition: background .1s;
+}
+.result-item:hover { background: #EDEAE4; }
+.result-item.active { background: var(–tag-bg); border-left: 3px solid var(–accent2); padding-left: 13px; }
+.result-item.sel { background: #EDEAE4; }
+.r-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.r-name { font-weight: 500; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-name strong { color: var(–accent2); font-weight: 500; }
+.r-sub { font-size: 11px; color: var(–muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-tag { font-size: 9px; font-family: var(–mono); padding: 2px 7px; border-radius: 999px; background: var(–tag-bg); color: var(–tag-text); white-space: nowrap; flex-shrink: 0; }
+.no-results { padding: 13px 16px; color: var(–muted); font-size: 12px; font-family: var(–mono); }
+
+/* ── PASSPORT AREA ── */
+.passport-area { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(–border) transparent; background: var(–bg); }
+
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; color: var(–muted); font-family: var(–mono); font-size: 11px; letter-spacing: .08em; }
+.empty-state svg { opacity: .2; }
+
+/* ── FICHE ── */
+.fiche { display: none; max-width: 860px; margin: 0 auto; padding: 24px 24px 60px; }
+.fiche.visible { display: block; animation: fadeUp .2s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+
+/* fiche header — exact navy style from original */
+.fiche-header {
+background: var(–accent); border-radius: 10px 10px 0 0;
+padding: 22px 28px;
+display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+}
+.fh-left { flex: 1; min-width: 0; }
+.vendor-eyebrow { font-family: var(–mono); font-size: 9px; letter-spacing: .15em; color: rgba(255,255,255,.3); text-transform: uppercase; margin-bottom: 5px; }
+.vendor-name { font-size: 22px; font-weight: 600; color: white; letter-spacing: -.01em; margin-bottom: 6px; }
+.fh-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.fh-tag { font-size: 10px; font-family: var(–mono); padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.55); white-space: nowrap; }
+.fh-tag.at { background: var(–active-bg); color: var(–active-text); border-color: transparent; }
+.fh-tag.it { background: var(–inactive-bg); color: var(–inactive-text); border-color: transparent; }
+.fh-actions { display: flex; gap: 8px; align-items: flex-start; flex-shrink: 0; }
+.unsaved-dot { width: 6px; height: 6px; border-radius: 50%; background: #f0c040; margin-top: 9px; flex-shrink: 0; display: none; }
+.fh-btn { padding: 6px 12px; font-family: var(–mono); font-size: 9px; letter-spacing: .08em; border-radius: 5px; cursor: pointer; white-space: nowrap; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: rgba(255,255,255,.55); transition: all .15s; }
+.fh-btn:hover { background: rgba(255,255,255,.12); color: rgba(255,255,255,.85); border-color: rgba(255,255,255,.3); }
+.fh-btn.primary { background: rgba(74,78,140,.5); border-color: rgba(150,155,220,.4); color: rgba(200,205,255,.9); }
+.fh-btn.primary:hover { background: rgba(74,78,140,.75); }
+.fh-btn.ok { background: rgba(42,107,60,.4); border-color: rgba(90,180,110,.4); color: #7dde9a; }
+
+/* ── S1–S9 TABS ── */
+.section-tabs {
+display: flex; background: var(–bg);
+border-left: 1.5px solid var(–border); border-right: 1.5px solid var(–border); border-bottom: 1.5px solid var(–border);
+overflow-x: auto; scrollbar-width: none;
+}
+.section-tabs::-webkit-scrollbar { display: none; }
+.stab { padding: 8px 13px; font-family: var(–mono); font-size: 9px; letter-spacing: .08em; color: var(–muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .15s; }
+.stab:hover { color: var(–text); }
+.stab.on { color: var(–accent2); border-bottom-color: var(–accent2); }
+
+/* ── FICHE BODY — exact white style from original ── */
+.fiche-body { background: var(–surface); border: 1.5px solid var(–border); border-top: none; border-radius: 0 0 10px 10px; overflow: hidden; }
+
+.sec-panel { display: none; }
+.sec-panel.on { display: block; }
+
+.section-header { padding: 7px 20px; background: var(–bg); border-bottom: 1px solid var(–border); border-top: 1px solid var(–border); display: flex; align-items: center; }
+.section-header:first-child { border-top: none; }
+.section-label { font-family: var(–mono); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: var(–muted); }
+
+/* field rows — exact from original */
+.field-row { display: grid; grid-template-columns: 180px 1fr auto; align-items: start; padding: 10px 20px; border-bottom: 1px solid var(–border); gap: 12px; min-height: 38px; transition: background .1s; }
+.field-row:last-child { border-bottom: none; }
+.field-row:hover { background: #FAFAF8; }
+.field-key { font-size: 12px; color: var(–muted); font-weight: 400; padding-top: 1px; }
+
+/* editable value */
+.field-val { font-size: 13px; color: var(–text); font-weight: 500; word-break: break-word; outline: none; border-radius: 4px; padding: 1px 5px; margin: -1px -5px; min-height: 20px; line-height: 1.5; transition: background .1s, box-shadow .1s; }
+.field-val[contenteditable]:hover { background: #F0EEE8; }
+.field-val[contenteditable]:focus { background: #EBE9FF; box-shadow: 0 0 0 1.5px var(–accent2); }
+.field-val.mono { font-family: var(–mono); font-size: 12px; font-weight: 400; letter-spacing: .02em; }
+.field-val.empty { color: var(–muted); font-weight: 400; }
+.field-val.empty:empty::before { content: ‘—’; }
+.field-val a { color: var(–accent2); text-decoration: none; }
+.field-val a:hover { text-decoration: underline; }
+.bool-yes { color: var(–active-text); font-family: var(–mono); font-size: 12px; }
+.bool-no  { color: var(–muted); font-family: var(–mono); font-size: 12px; }
+.url-wrap { display: flex; align-items: center; gap: 6px; }
+.url-open { color: var(–muted); font-size: 11px; text-decoration: none; flex-shrink: 0; transition: color .15s; }
+.url-open:hover { color: var(–accent2); }
+
+/* copy button — exact from original */
+.copy-btn { display: flex; align-items: center; gap: 4px; padding: 4px 9px; background: transparent; border: 1px solid var(–border); border-radius: 4px; font-size: 10px; font-family: var(–mono); color: var(–muted); cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+.copy-btn:hover { border-color: var(–accent2); color: var(–accent2); background: var(–tag-bg); }
+.copy-btn.copied { border-color: var(–active-text); color: var(–active-text); background: var(–active-bg); }
+
+/* ── MARKDOWN STRIP ── */
+.md-strip { margin-top: 20px; border: 1.5px solid var(–border); border-radius: 10px; overflow: hidden; background: var(–surface); }
+.md-head { padding: 8px 20px; background: var(–bg); border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; }
+.md-label { font-family: var(–mono); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: var(–muted); }
+.md-copy-btn { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: transparent; border: 1px solid var(–border); border-radius: 4px; font-size: 10px; font-family: var(–mono); color: var(–muted); cursor: pointer; transition: all .15s; }
+.md-copy-btn:hover { border-color: var(–accent2); color: var(–accent2); background: var(–tag-bg); }
+.md-copy-btn.copied { border-color: var(–active-text); color: var(–active-text); background: var(–active-bg); }
+.md-body { padding: 14px 20px 18px; font-family: var(–mono); font-size: 11px; line-height: 1.75; color: var(–muted); white-space: pre-wrap; max-height: 130px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(–border) transparent; }
+.md-body .mh { color: #2a4a2a; }
+.md-body .ms { color: #2a3060; }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="h-left">
+    <span class="logo">VendorDB</span>
+    <h1>Vendor Passport</h1>
+  </div>
+  <div class="sync-status">
+    <div class="sync-dot loading" id="syncDot"></div>
+    <span id="syncLabel">laden…</span>
+  </div>
+</header>
+
+<div class="body">
+
+  <!-- SIDEBAR -->
+
+  <div class="sidebar">
+    <div class="sb-top">
+      <div class="search-meta">
+        <span class="search-label">Zoek vendor</span>
+        <span class="vendor-count" id="vendorCount"></span>
+      </div>
+      <div class="sw">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="zoek" placeholder="Typ bedrijfsnaam…" autocomplete="off">
+      </div>
+    </div>
+    <div class="sb-loader" id="sbLoader"><div class="spinner"></div><span>Vendordata ophalen…</span></div>
+    <div class="sb-err" id="sbErr">Kon data niet laden.<br>Controleer Sheet publicatie.</div>
+    <div class="results-list" id="resultsList"></div>
+  </div>
+
+  <!-- PASSPORT AREA -->
+
+  <div class="passport-area" id="passportArea">
+
+```
+<div class="empty-state" id="emptyState">
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+  Zoek een vendor
+</div>
+
+<div class="fiche" id="fiche">
+
+  <div class="fiche-header">
+    <div class="fh-left">
+      <div class="vendor-eyebrow">vendor passport</div>
+      <div class="vendor-name" id="phName">—</div>
+      <div class="fh-tags" id="phTags"></div>
+    </div>
+    <div class="fh-actions">
+      <div class="unsaved-dot" id="unsavedDot"></div>
+      <button class="fh-btn" onclick="resetEdits()">reset</button>
+      <button class="fh-btn primary" id="mdBtn" onclick="copyMd()">📋 markdown</button>
+    </div>
+  </div>
+
+  <div class="section-tabs" id="sectionTabs"></div>
+  <div class="fiche-body" id="ficheBody"></div>
+
+  <div class="md-strip">
+    <div class="md-head">
+      <span class="md-label">Markdown preview</span>
+      <button class="md-copy-btn" id="mdCopyBtn" onclick="copyMd()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        copy all
+      </button>
+    </div>
+    <div class="md-body" id="mdBody"></div>
+  </div>
+
+</div>
+```
+
+  </div>
+
+</div>
+
+<script>
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQYxFJ-AZ6u8FZaGNTV-OFbXZj_OQL2GH8BYXiwSQ6w4euTnmMIiPS-i9w7wlqESnqtHVSYfrdl1_1r/pub?gid=712742950&single=true&output=csv';
+
+const SECTIONS = [
+  { id:'S1', label:'S1  Overview',   match:/website|partner.portal|description|language|founded|employees/i },
+  { id:'S2', label:'S2  Compliance', match:/gdpr|soc.?2|iso.?27001|data.residency|eu.ai.act|cra|trust.center|dpa|privacy.policy/i },
+  { id:'S3', label:'S3  Product',    match:/platform|deployment|sku|license.type|user.type|user.group|os.support|version/i },
+  { id:'S4', label:'S4  Pricing',    match:/discount|margin|pricing.model|pricing.freedom|erp.code|price.change|nfr|list.price|currency/i },
+  { id:'S5', label:'S5  Ordering',   match:/ordering.method|order.email|invoicing|payment.term|lead.time|purchase.order/i },
+  { id:'S6', label:'S6  Renewal',    match:/renewal|price.at.renewal|next.review|auto.renewal|termination|contract.end|expiry/i },
+  { id:'S7', label:'S7  Support',    match:/support.email|escalation|sla|helpdesk|ticket|response.time/i },
+  { id:'S8', label:'S8  Strategic',  match:/agreement|deal.reg|sub.reseller|business.case|partnership|strategic|watch|keep|grow|sunset|priority/i },
+  { id:'S9', label:'S9  Contacts',   match:/primary.contact|contact.email|contact.name|contact.phone|account.manager|sales.rep/i },
+];
+const HEADER_RE = /^vendor$|^status$|^category$|^country$|^vendor.?type$/i;
+const NAME_KEY  = 'Vendor';
+
+let vendors = [], headers = [], active = null, selIdx = -1;
+
+async function init() {
+  setSync('loading','laden…');
+  try {
+    const r = await fetch(SHEET_URL);
+    if (!r.ok) throw new Error();
+    parseCSV(await r.text());
+    document.getElementById('sbLoader').style.display = 'none';
+    document.getElementById('vendorCount').textContent = vendors.length + ' vendors';
+    setSync('ok','gesynchroniseerd');
+    renderList();
+    document.getElementById('zoek').focus();
+  } catch {
+    document.getElementById('sbLoader').style.display = 'none';
+    document.getElementById('sbErr').style.display = 'block';
+    setSync('err','fout bij laden');
+  }
+}
+
+function setSync(s,t) { document.getElementById('syncDot').className='sync-dot '+s; document.getElementById('syncLabel').textContent=t; }
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n').filter(l=>l.trim());
+  const sep = lines[0].split(';').length > lines[0].split(',').length ? ';' : ',';
+  headers = lines[0].split(sep).map(h=>h.trim().replace(/\r/g,''));
+  vendors = lines.slice(1).map(line => {
+    const vals = parseLine(line,sep); const o={};
+    headers.forEach((h,i)=>o[h]=(vals[i]||'').trim().replace(/\r/g,''));
+    return o;
+  }).filter(v=>v[NAME_KEY]&&v[NAME_KEY].trim());
+}
+
+function parseLine(line,sep) {
+  const res=[]; let cur='',q=false;
+  for(const c of line){ if(c==='"')q=!q; else if(c===sep&&!q){res.push(cur);cur='';}else cur+=c; }
+  res.push(cur); return res;
+}
+
+function renderList(filter='') {
+  selIdx=-1;
+  const lq=filter.toLowerCase();
+  const hits=lq?vendors.filter(v=>(v[NAME_KEY]||'').toLowerCase().includes(lq)):vendors;
+  const el=document.getElementById('resultsList');
+  if(!hits.length){el.innerHTML='<div class="no-results">Geen vendors gevonden</div>';return;}
+  el.innerHTML=hits.slice(0,80).map(v=>{
+    const name=v[NAME_KEY], status=v['Status']||'', cat=v['Category']||'', country=v['Country']||'';
+    const sub=[cat,country].filter(Boolean).join(' · ');
+    const isOn=active&&active[NAME_KEY]===name;
+    return `<div class="result-item${isOn?' active':''}" data-v="${esc(name)}">
+      <div class="r-left">
+        <span class="r-name">${lq?hl(name,lq):name}</span>
+        ${sub?`<span class="r-sub">${sub}</span>`:''}
+      </div>
+      ${status?`<span class="r-tag">${status}</span>`:''}
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.result-item').forEach(e=>e.addEventListener('click',()=>pick(e.dataset.v)));
+}
+
+document.getElementById('zoek').addEventListener('input',e=>renderList(e.target.value));
+document.getElementById('zoek').addEventListener('keydown',e=>{
+  const items=document.querySelectorAll('.result-item'); if(!items.length)return;
+  if(e.key==='ArrowDown'){e.preventDefault();selIdx=Math.min(selIdx+1,items.length-1);markSel(items);}
+  else if(e.key==='ArrowUp'){e.preventDefault();selIdx=Math.max(selIdx-1,0);markSel(items);}
+  else if(e.key==='Enter'&&selIdx>=0)items[selIdx].click();
+  else if(e.key==='Escape')e.target.blur();
+});
+function markSel(items){items.forEach((e,i)=>e.classList.toggle('sel',i===selIdx));}
+function hl(t,q){const i=t.toLowerCase().indexOf(q);return i<0?t:t.slice(0,i)+'<strong>'+t.slice(i,i+q.length)+'</strong>'+t.slice(i+q.length);}
+function esc(s){return(s||'').replace(/"/g,'&quot;');}
+
+function pick(name) {
+  const v=vendors.find(x=>x[NAME_KEY]===name); if(!v)return;
+  active=v; renderList(document.getElementById('zoek').value); renderPassport(v);
+}
+
+function renderPassport(v) {
+  const merged={...v,...getEdits(v[NAME_KEY])};
+  document.getElementById('phName').textContent=merged[NAME_KEY]||'—';
+  const status=merged['Status']||'', cat=merged['Category']||'', country=merged['Country']||'', type=merged['Vendor Type']||merged['Vendor type']||'';
+  document.getElementById('phTags').innerHTML=[status,cat,country,type].filter(Boolean).map(t=>{
+    const cls=/actief|active/i.test(t)?'at':/inactief|inactive/i.test(t)?'it':'';
+    return `<span class="fh-tag ${cls}">${t}</span>`;
+  }).join('');
+  markUnsaved(v[NAME_KEY]);
+
+  const hdrCols=new Set(headers.filter(h=>HEADER_RE.test(h)));
+  const buckets=SECTIONS.map(s=>({...s,keys:[]}));
+  const rest={id:'SX',label:'Overige',keys:[]};
+  headers.forEach(h=>{
+    if(h===NAME_KEY||hdrCols.has(h))return;
+    const i=SECTIONS.findIndex(s=>s.match.test(h));
+    i>=0?buckets[i].keys.push(h):rest.keys.push(h);
+  });
+  const secs=[...buckets,...(rest.keys.length?[rest]:[])].filter(s=>s.keys.length);
+
+  document.getElementById('sectionTabs').innerHTML=secs.map((s,i)=>
+    `<button class="stab${i===0?' on':''}" data-id="${s.id}" onclick="switchTab('${s.id}')">${s.label}</button>`
+  ).join('');
+
+  document.getElementById('ficheBody').innerHTML=secs.map((s,i)=>
+    `<div class="sec-panel${i===0?' on':''}" id="sp-${s.id}">
+      <div class="section-header"><span class="section-label">${s.label}</span></div>
+      ${s.keys.map(k=>renderRow(k,merged[k],v[NAME_KEY])).join('')}
+    </div>`
+  ).join('');
+
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('fiche').classList.add('visible');
+  document.getElementById('passportArea').scrollTo(0,0);
+  renderMdPreview(merged);
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.stab').forEach(b=>b.classList.toggle('on',b.dataset.id===id));
+  document.querySelectorAll('.sec-panel').forEach(p=>p.classList.toggle('on',p.id==='sp-'+id));
+}
+
+function renderRow(key,rawVal,vName) {
+  const val=(rawVal||'').trim(), empty=!val;
+  const isURL=/^https?:\/\//i.test(val), isBool=/^(yes|no|ja|nee|true|false|✓|✗|x)$/i.test(val);
+  const isMono=/erp.?code|iban|discount|margin|sku|code/i.test(key);
+  const attrs=`contenteditable="true" data-key="${esc(key)}" data-v="${esc(vName)}" onblur="saveEdit(this)"`;
+  let inner;
+  if(empty){ inner=`<span class="field-val empty" ${attrs}></span>`; }
+  else if(isBool){ const yes=/^(yes|ja|true|✓|x)$/i.test(val); inner=`<span class="field-val ${yes?'bool-yes':'bool-no'}" ${attrs}>${val}</span>`; }
+  else if(isURL){ inner=`<span class="url-wrap"><span class="field-val${isMono?' mono':''}" ${attrs}>${val}</span><a class="url-open" href="${val}" target="_blank" rel="noopener" title="open">↗</a></span>`; }
+  else{ inner=`<span class="field-val${isMono?' mono':''}" ${attrs}>${val}</span>`; }
+  const copyBtn=val?`<button class="copy-btn" onclick="cpField(this,${JSON.stringify(val)})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>kopieer</button>`:'<span></span>';
+  return `<div class="field-row"><span class="field-key">${key}</span>${inner}${copyBtn}</div>`;
+}
+
+function skey(n){return 'vedits_'+n.toUpperCase().replace(/\s+/g,'_');}
+function getEdits(n){try{return JSON.parse(localStorage.getItem(skey(n))||'{}');}catch{return {};}}
+function saveEdit(el){
+  if(!active)return;
+  const key=el.dataset.key, vName=el.dataset.v, val=el.innerText.trim(), orig=active[key]||'';
+  const edits=getEdits(vName);
+  if(!val||val===orig)delete edits[key]; else edits[key]=val;
+  localStorage.setItem(skey(vName),JSON.stringify(edits));
+  markUnsaved(vName);
+  renderMdPreview({...active,...getEdits(vName)});
+}
+function resetEdits(){if(!active)return;localStorage.removeItem(skey(active[NAME_KEY]));renderPassport(active);}
+function markUnsaved(n){document.getElementById('unsavedDot').style.display=Object.keys(getEdits(n)).length?'block':'none';}
+
+function buildMd(merged){
+  const hdrCols=new Set(headers.filter(h=>HEADER_RE.test(h)));
+  const buckets=SECTIONS.map(s=>({...s,keys:[]})); const rest={id:'SX',label:'Overige',keys:[]};
+  headers.forEach(h=>{if(h===NAME_KEY||hdrCols.has(h))return;const i=SECTIONS.findIndex(s=>s.match.test(h));i>=0?buckets[i].keys.push(h):rest.keys.push(h);});
+  const secs=[...buckets,...(rest.keys.length?[rest]:[])].filter(s=>s.keys.length);
+  let md=`## ${merged[NAME_KEY]||'—'}\n**Status:** ${merged['Status']||'—'}  ·  **Category:** ${merged['Category']||'—'}  ·  **Country:** ${merged['Country']||'—'}\n\n`;
+  secs.forEach(s=>{md+=`### ${s.label}\n`;s.keys.forEach(k=>{const v=(merged[k]||'').trim();if(v)md+=`**${k}:** ${v}\n`;});md+='\n';});
+  return md.trim();
+}
+function renderMdPreview(merged){
+  document.getElementById('mdBody').innerHTML=buildMd(merged)
+    .replace(/^## .+$/gm,m=>`<span class="mh">${m}</span>`)
+    .replace(/^### .+$/gm,m=>`<span class="ms">${m}</span>`)
+    .replace(/\*\*([^*]+)\*\*/g,(_,k)=>`<span class="ms">**${k}**</span>`);
+}
+function copyMd(){
+  if(!active)return;
+  navigator.clipboard.writeText(buildMd({...active,...getEdits(active[NAME_KEY])})).then(()=>{
+    ['mdBtn','mdCopyBtn'].forEach(id=>{
+      const btn=document.getElementById(id); if(!btn)return;
+      const orig=btn.textContent;
+      btn.textContent='✓ gekopieerd'; btn.classList.add(id==='mdBtn'?'ok':'copied');
+      setTimeout(()=>{btn.textContent=orig;btn.classList.remove('ok','copied');},2000);
+    });
+  });
+}
+function cpField(btn,val){
+  navigator.clipboard.writeText(val).then(()=>{
+    btn.classList.add('copied');
+    btn.innerHTML=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 12 4 10"/></svg>gekopieerd`;
+    setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>kopieer`;},2000);
+  });
+}
+
+init();
+</script>
+
+</body>
+</html>
